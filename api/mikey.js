@@ -39,7 +39,8 @@ RULES:
     });
 
     if (!response.ok) {
-      throw new Error('Groq API error');
+      const errorText = await response.text();
+      throw new Error(`Groq API error: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
@@ -48,6 +49,7 @@ RULES:
     return res.status(200).json({ reply: reply });
 
   } catch (error) {
-    return res.status(500).json({ error: 'Failed to get response from Mikey' });
+    console.error("Groq API Error:", error);
+    return res.status(500).json({ error: 'Failed to get response from Mikey', details: error.message });
   }
 }
