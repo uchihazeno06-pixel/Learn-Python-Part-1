@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Python Mastery · Interactive Course</title>
   <style>
     * {
@@ -18,15 +18,16 @@
       display: flex;
       flex-direction: column;
       height: 100vh;
+      height: 100dvh;
       overflow: hidden;
     }
     .app-header {
-      padding: 16px 20px;
+      padding: 12px 20px;
       background: #ffffff;
       border-bottom: 2px solid #f1f5f9;
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 12px;
       z-index: 10;
     }
     .close-btn {
@@ -41,6 +42,7 @@
       justify-content: center;
       cursor: pointer;
       color: #64748b;
+      flex-shrink: 0;
     }
     .progress-container {
       flex: 1;
@@ -61,9 +63,32 @@
       font-weight: 800;
       color: #58cc02;
       font-size: 0.95rem;
-      min-width: 45px;
+      min-width: 40px;
       text-align: right;
+      flex-shrink: 0;
     }
+    
+    .ask-mikey-btn {
+      background: #7c3aed;
+      color: white;
+      border: none;
+      border-radius: 20px;
+      padding: 8px 14px;
+      font-size: 0.85rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 3px 0 #5b21b6;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: 0.1s;
+      flex-shrink: 0;
+    }
+    .ask-mikey-btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 0 0 #5b21b6;
+    }
+
     .main-content {
       flex: 1;
       overflow-y: auto;
@@ -206,6 +231,7 @@
     .console-output.show { display: block; }
     .console-output.error { color: #ef4444; border-color: #ef4444; background: #fef2f2; }
     .console-output.success { color: #166534; border-color: #58cc02; background: #f0fdf4; }
+    
     .app-footer {
       position: fixed;
       bottom: 0;
@@ -352,36 +378,13 @@
     }
     .hidden { display: none !important; }
 
-    .ask-mikey-btn {
-      position: fixed;
-      top: 16px;
-      right: 20px;
-      background: #7c3aed;
-      color: white;
-      border: none;
-      border-radius: 50px;
-      padding: 12px 20px;
-      font-size: 1rem;
-      font-weight: 800;
-      cursor: pointer;
-      box-shadow: 0 4px 0 #5b21b6;
-      z-index: 100;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: 0.1s;
-    }
-    .ask-mikey-btn:active {
-      transform: translateY(4px);
-      box-shadow: 0 2px 0 #5b21b6;
-    }
-
     .chat-overlay {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
+      height: 100dvh;
       background: rgba(0, 0, 0, 0.5);
       z-index: 200;
       display: none;
@@ -395,7 +398,8 @@
       background: #ffffff;
       width: 100%;
       max-width: 600px;
-      height: 80vh;
+      height: 85vh;
+      height: 85dvh;
       border-radius: 24px 24px 0 0;
       display: flex;
       flex-direction: column;
@@ -414,6 +418,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-shrink: 0;
     }
     .chat-header h3 {
       font-size: 1.3rem;
@@ -474,6 +479,8 @@
       border-top: 2px solid #e2e8f0;
       display: flex;
       gap: 12px;
+      flex-shrink: 0;
+      padding-bottom: max(16px, env(safe-area-inset-bottom));
     }
     .chat-input-area input {
       flex: 1;
@@ -498,6 +505,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      flex-shrink: 0;
     }
   </style>
 </head>
@@ -509,6 +517,7 @@
       <div class="progress-bar" id="progressBar"></div>
     </div>
     <div class="score-badge" id="scoreBadge">0%</div>
+    <button class="ask-mikey-btn" id="askMikeyBtn">🤖 Ask Mikey</button>
   </header>
 
   <div class="screen active" id="startScreen">
@@ -516,6 +525,7 @@
     <h1>Python Mastery</h1>
     <p>Conditionals, Loops & Functions</p>
     <button class="action-btn active center-btn" id="startBtn">Start Learning</button>
+    <button class="ask-mikey-btn" id="askMikeyBtnStart" style="margin-top: 20px; padding: 16px 24px; font-size: 1.1rem;">🤖 Ask Mikey</button>
   </div>
 
   <main class="main-content hidden" id="mainContent">
@@ -542,8 +552,6 @@
   </div>
 
   <div class="credit-footer">Made by <span>Zeno</span></div>
-
-  <button class="ask-mikey-btn" id="askMikeyBtn">🤖 Ask Mikey</button>
 
   <div class="chat-overlay" id="chatOverlay">
     <div class="chat-panel">
@@ -1693,11 +1701,20 @@ print(result)  <span class="comment"># 16</span>
     });
 
     const askMikeyBtn = document.getElementById('askMikeyBtn');
+    const askMikeyBtnStart = document.getElementById('askMikeyBtnStart');
     const chatOverlay = document.getElementById('chatOverlay');
     const chatClose = document.getElementById('chatClose');
     const chatMessages = document.getElementById('chatMessages');
     const chatInput = document.getElementById('chatInput');
     const chatSend = document.getElementById('chatSend');
+
+    function openChat() {
+      chatOverlay.classList.add('active');
+      setTimeout(() => chatInput.focus(), 100);
+    }
+
+    askMikeyBtn.addEventListener('click', openChat);
+    askMikeyBtnStart.addEventListener('click', openChat);
 
     function addMessage(text, sender) {
       const div = document.createElement('div');
@@ -1741,11 +1758,6 @@ print(result)  <span class="comment"># 16</span>
         addMessage("Error: " + error.message, 'mikey');
       }
     }
-
-    askMikeyBtn.addEventListener('click', () => {
-      chatOverlay.classList.add('active');
-      chatInput.focus();
-    });
 
     chatClose.addEventListener('click', () => {
       chatOverlay.classList.remove('active');
