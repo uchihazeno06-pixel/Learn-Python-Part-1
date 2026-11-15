@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Python Mastery · Interactive Course</title>
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.26.1/full/pyodide.js"></script>
   <style>
     * {
       margin: 0;
@@ -287,6 +288,18 @@
     .console-output.error { color: #ef4444; border-color: #ef4444; background: #fef2f2; }
     .console-output.success { color: #166534; border-color: #58cc02; background: #f0fdf4; }
     
+    .loading-indicator {
+      background: #e0f2fe;
+      color: #0369a1;
+      padding: 12px;
+      border-radius: 12px;
+      font-weight: 700;
+      text-align: center;
+      display: none;
+      margin-bottom: 20px;
+    }
+    .loading-indicator.show { display: block; }
+
     .app-footer {
       position: fixed;
       bottom: 0;
@@ -441,7 +454,6 @@
     
     .hidden { display: none !important; }
 
-    /* NOTES MODAL STYLES */
     .notes-overlay {
       position: fixed;
       top: 0;
@@ -595,7 +607,6 @@
       font-style: italic;
     }
 
-    /* Styling for code inside chat messages */
     .chat-message pre {
       background: #1e1e2f;
       color: #e2e8f0;
@@ -672,7 +683,8 @@
     <div class="trophy-icon">🐍</div>
     <h1>Python Mastery</h1>
     <p>Conditionals, Loops & Functions</p>
-    <button class="action-btn active center-btn" id="startBtn">Start Learning</button>
+    <div class="loading-indicator" id="loadingIndicator">Loading Python Engine... (This takes a moment)</div>
+    <button class="action-btn active center-btn" id="startBtn" style="margin-top: 20px;">Start Learning</button>
     <div style="display: flex; gap: 10px; margin-top: 20px;">
       <button class="header-btn" id="notesBtnStart" style="padding: 16px 24px; font-size: 1.1rem;">📖 Notes</button>
       <button class="ask-mikey-btn" id="askMikeyBtnStart" style="padding: 16px 24px; font-size: 1.1rem;">🤖 Mikey</button>
@@ -704,7 +716,6 @@
 
   <a href="https://okwy.name.ng" target="_blank" class="credit-footer">Made by <span>Zeno</span></a>
 
-  <!-- NOTES MODAL -->
   <div class="notes-overlay" id="notesOverlay">
     <div class="notes-header">
       <h3>📖 Python Cheat Sheet</h3>
@@ -812,8 +823,30 @@ result = my_sum(<span class="num">3</span>, <span class="num">5</span>)
   </div>
 
   <script>
+    // --- PYODIDE SETUP ---
+    let pyodideReady = false;
+    let pyodide = null;
+
+    async function initPyodide() {
+      const loadingIndicator = document.getElementById('loadingIndicator');
+      loadingIndicator.classList.add('show');
+      try {
+        pyodide = await loadPyodide({
+          stdout: (text) => console.log(text)
+        });
+        pyodideReady = true;
+        loadingIndicator.classList.remove('show');
+      } catch (e) {
+        console.error("Failed to load Pyodide:", e);
+        loadingIndicator.textContent = "Failed to load Python engine. Check your internet connection.";
+      }
+    }
+
+    // Start loading Pyodide immediately when the page loads
+    initPyodide();
+
+    // --- COURSE DATA ---
     const courseSteps = [
-      // --- CHAPTER 1: IF STATEMENTS ---
       {
         type: 'note',
         title: 'What is an If Statement?',
@@ -972,7 +1005,6 @@ score = <span class="num">85</span>
         explanation: 'elif stands for "else if". It checks another condition only if the previous ones were False.'
       },
       
-      // --- CHAPTER 2: NESTED IFS & LOGICAL OPERATORS ---
       {
         type: 'note',
         title: 'Nested Ifs',
@@ -1033,7 +1065,6 @@ born_again = <span class="kw">True</span>
         explanation: 'not True becomes False, and not False becomes True.'
       },
 
-      // --- CHAPTER 3: FOR LOOPS ---
       {
         type: 'note',
         title: 'What is a For Loop?',
@@ -1107,7 +1138,6 @@ fruits = [<span class="str">"apple"</span>, <span class="str">"banana"</span>, <
         explanation: 'range(start, stop) includes start but excludes stop. So it generates 1, 2, 3, 4.'
       },
 
-      // --- CHAPTER 4: WHILE LOOPS & CONTROL ---
       {
         type: 'note',
         title: 'While Loops',
@@ -1195,7 +1225,6 @@ print(<span class="str">"Go!"</span>)
         explanation: 'The loop prints 1, 2, 3. When num == 4, break stops the loop.'
       },
 
-      // --- CHAPTER 5: FUNCTIONS ---
       {
         type: 'note',
         title: 'What is a Function?',
@@ -1299,7 +1328,7 @@ print(result)  <span class="comment"># 16</span>
         explanation: 'The default return value is None.'
       },
 
-      // --- CHAPTER 6: PRACTICAL TASKS ---
+      // --- PRACTICAL TASKS ---
       {
         type: 'note',
         title: 'Practical Task 1: The Positive Check',
@@ -1538,8 +1567,11 @@ print(result)  <span class="comment"># 16</span>
     totalQuestions = courseSteps.filter(s => s.type === 'mcq' || s.type === 'fill' || s.type === 'task').length;
 
     function updateProgress() {
+      // Progress bar tracks how far along you are
       const percentage = Math.round((currentStepIndex / courseSteps.length) * 100);
       progressBar.style.width = `${percentage}%`;
+      
+      // Score badge only tracks correct answers
       const scorePercentage = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0;
       scoreBadge.textContent = `${scorePercentage}%`;
     }
@@ -1684,308 +1716,57 @@ print(result)  <span class="comment"># 16</span>
       updateProgress();
     }
 
-    function runTaskCode(step) {
+    // Real Python Execution via Pyodide
+    async function runTaskCode(step) {
       const editor = document.getElementById('taskEditor');
       const outputDiv = document.getElementById('consoleOutput');
       const code = editor.value;
       
-      let outputBuffer = "";
-      let globalScope = {};
-      let functions = {};
-      let loopCount = 0;
+      outputDiv.textContent = "Running...";
+      outputDiv.classList.add('show');
+      outputDiv.classList.remove('error', 'success');
 
-      function printToConsole(text) {
-        outputBuffer += text + "\n";
-      }
-
-      function evaluateExpression(expr, scope) {
-        expr = expr.trim();
-        if ((expr.startsWith('"') && expr.endsWith('"')) || (expr.startsWith("'") && expr.endsWith("'"))) return expr.slice(1, -1);
-        if (!isNaN(expr)) return Number(expr);
-        if (expr === 'True') return true;
-        if (expr === 'False') return false;
-        if (expr === 'None') return null;
-
-        const funcCallMatch = expr.match(/^([a-zA-Z_]\w*)\((.*)\)$/);
-        if (funcCallMatch) {
-          const funcName = funcCallMatch[1];
-          const argsString = funcCallMatch[2];
-          let args = [];
-          if (argsString.trim() !== '') {
-            let current = '', depth = 0, inString = false, quote = '';
-            for (let char of argsString) {
-              if (char === '"' || char === "'") {
-                if (inString && char === quote) inString = false;
-                else if (!inString) { inString = true; quote = char; }
-              } else if (!inString) {
-                if (char === '(') depth++;
-                else if (char === ')') depth--;
-                else if (char === ',' && depth === 0) { args.push(current.trim()); current = ''; continue; }
-              }
-              current += char;
-            }
-            args.push(current.trim());
-          }
-          const evaluatedArgs = args.map(a => evaluateExpression(a, scope));
-
-          if (funcName === 'print') {
-            printToConsole(evaluatedArgs.map(a => a === null ? 'None' : String(a)).join(' '));
-            return null;
-          }
-          if (funcName === 'range') {
-            if (evaluatedArgs.length === 1) return Array.from({length: evaluatedArgs[0]}, (_, i) => i);
-            if (evaluatedArgs.length === 2) {
-              let arr = [];
-              for (let i = evaluatedArgs[0]; i < evaluatedArgs[1]; i++) arr.push(i);
-              return arr;
-            }
-          }
-          if (functions[funcName]) {
-            return callFunction(funcName, evaluatedArgs);
-          }
-        }
-
-        try {
-          let jsExpr = expr
-            .replace(/\bTrue\b/g, 'true').replace(/\bFalse\b/g, 'false').replace(/\bNone\b/g, 'null')
-            .replace(/\band\b/g, '&&').replace(/\bor\b/g, '||').replace(/\bnot\b/g, '!')
-            .replace(/(?<![<>=!])==(?!=)/g, '===');
-          for (let key in scope) {
-            const regex = new RegExp(`\\b${key}\\b`, 'g');
-            let val = scope[key];
-            if (typeof val === 'string') val = JSON.stringify(val);
-            jsExpr = jsExpr.replace(regex, val);
-          }
-          return new Function(`return (${jsExpr})`)();
-        } catch (e) {
-          if (scope[expr] !== undefined) return scope[expr];
-          return expr;
-        }
-      }
-
-      function callFunction(name, args) {
-        const func = functions[name];
-        if (!func) return null;
-        const localScope = Object.create(globalScope);
-        func.params.forEach((param, i) => {
-          localScope[param] = args[i] !== undefined ? args[i] : null;
-        });
-        let returnValue = null;
-        const lines = func.body.split('\n');
-        for (let i = 0; i < lines.length; i++) {
-          const line = lines[i];
-          if (line.trim().startsWith('return ')) {
-            returnValue = evaluateExpression(line.trim().substring(7), localScope);
-            break;
-          }
-          executeLine(line, i, lines, localScope, 0);
-        }
-        return returnValue;
-      }
-
-      function executeLine(line, index, lines, scope, indentLevel) {
-        const trimmed = line.trim();
-        if (trimmed === '' || trimmed.startsWith('#')) return index;
-        const currentIndent = line.length - line.trimStart().length;
-        if (currentIndent < indentLevel) return index;
-
-        const assignMatch = trimmed.match(/^([a-zA-Z_]\w*)\s*=\s*(.+)$/);
-        if (assignMatch && !trimmed.startsWith('if') && !trimmed.startsWith('while')) {
-          scope[assignMatch[1]] = evaluateExpression(assignMatch[2], scope);
-          return index;
-        }
-
-        if (trimmed.startsWith('def ')) {
-          const match = trimmed.match(/^def\s+([a-zA-Z_]\w*)\((.*)\):/);
-          if (match) {
-            const name = match[1];
-            const paramsStr = match[2];
-            let params = [];
-            if (paramsStr.trim() !== '') {
-              params = paramsStr.split(',').map(p => p.trim());
-            }
-            let bodyLines = [];
-            let j = index + 1;
-            while (j < lines.length) {
-              const nextLine = lines[j];
-              if (nextLine.trim() === '' || nextLine.length - nextLine.trimStart().length > currentIndent) {
-                bodyLines.push(nextLine); j++;
-              } else break;
-            }
-            functions[name] = { params, body: bodyLines.join('\n') };
-            return j - 1;
-          }
-        }
-
-        if (trimmed.startsWith('print(')) {
-          const inner = trimmed.substring(6, trimmed.length - 1);
-          const val = evaluateExpression(inner, scope);
-          printToConsole(val === null ? 'None' : String(val));
-          return index;
-        }
-
-        if (trimmed.startsWith('if ') && trimmed.endsWith(':')) {
-          const condition = trimmed.substring(3, trimmed.length - 1);
-          const result = evaluateExpression(condition, scope);
-          let j = index + 1;
-          let blockExecuted = false;
-          if (result) {
-            while (j < lines.length) {
-              const nextLine = lines[j];
-              if (nextLine.trim() === '' || nextLine.length - nextLine.trimStart().length > currentIndent) {
-                executeLine(nextLine, j, lines, scope, currentIndent + 1);
-                j++;
-              } else break;
-            }
-            blockExecuted = true;
-          } else {
-            while (j < lines.length) {
-              const nextLine = lines[j];
-              if (nextLine.trim() === '' || nextLine.length - nextLine.trimStart().length > currentIndent) j++;
-              else break;
-            }
-          }
-          while (j < lines.length) {
-            const nextLine = lines[j];
-            const nextTrimmed = nextLine.trim();
-            const nextIndent = nextLine.length - nextLine.trimStart().length;
-            if (nextIndent !== currentIndent) break;
-            if (nextTrimmed.startsWith('elif ') && nextTrimmed.endsWith(':')) {
-              const elifCond = nextTrimmed.substring(5, nextTrimmed.length - 1);
-              const elifResult = evaluateExpression(elifCond, scope);
-              let k = j + 1;
-              if (!blockExecuted && elifResult) {
-                while (k < lines.length) {
-                  const kLine = lines[k];
-                  if (kLine.trim() === '' || kLine.length - kLine.trimStart().length > currentIndent) {
-                    executeLine(kLine, k, lines, scope, currentIndent + 1);
-                    k++;
-                  } else break;
-                }
-                blockExecuted = true; j = k - 1;
-              } else {
-                while (k < lines.length) {
-                  const kLine = lines[k];
-                  if (kLine.trim() === '' || kLine.length - kLine.trimStart().length > currentIndent) k++;
-                  else break;
-                }
-                j = k - 1;
-              }
-            } else if (nextTrimmed === 'else:') {
-              let k = j + 1;
-              if (!blockExecuted) {
-                while (k < lines.length) {
-                  const kLine = lines[k];
-                  if (kLine.trim() === '' || kLine.length - kLine.trimStart().length > currentIndent) {
-                    executeLine(kLine, k, lines, scope, currentIndent + 1);
-                    k++;
-                  } else break;
-                }
-              } else {
-                while (k < lines.length) {
-                  const kLine = lines[k];
-                  if (kLine.trim() === '' || kLine.length - kLine.trimStart().length > currentIndent) k++;
-                  else break;
-                }
-              }
-              j = k - 1;
-              break;
-            } else break;
-            j++;
-          }
-          return j - 1;
-        }
-
-        if (trimmed.startsWith('for ') && trimmed.endsWith(':')) {
-          const match = trimmed.match(/^for\s+([a-zA-Z_]\w*)\s+in\s+(.+):/);
-          if (match) {
-            const varName = match[1];
-            const iterableExpr = match[2];
-            let iterable = evaluateExpression(iterableExpr, scope);
-            if (Array.isArray(iterable)) {
-              const bodyStart = index + 1;
-              let bodyEnd = bodyStart;
-              while (bodyEnd < lines.length) {
-                const nextLine = lines[bodyEnd];
-                if (nextLine.trim() === '' || nextLine.length - nextLine.trimStart().length > currentIndent) bodyEnd++;
-                else break;
-              }
-              for (let item of iterable) {
-                scope[varName] = item;
-                for (let j = bodyStart; j < bodyEnd; j++) {
-                  executeLine(lines[j], j, lines, scope, currentIndent + 1);
-                  loopCount++;
-                  if (loopCount > 1000) throw new Error("Infinite loop");
-                }
-              }
-              return bodyEnd - 1;
-            }
-          }
-        }
-
-        if (trimmed.startsWith('while ') && trimmed.endsWith(':')) {
-          const condition = trimmed.substring(6, trimmed.length - 1);
-          const bodyStart = index + 1;
-          let bodyEnd = bodyStart;
-          while (bodyEnd < lines.length) {
-            const nextLine = lines[bodyEnd];
-            if (nextLine.trim() === '' || nextLine.length - nextLine.trimStart().length > currentIndent) bodyEnd++;
-            else break;
-          }
-          while (evaluateExpression(condition, scope)) {
-            for (let j = bodyStart; j < bodyEnd; j++) {
-              executeLine(lines[j], j, lines, scope, currentIndent + 1);
-              loopCount++;
-              if (loopCount > 10000) throw new Error("Infinite loop");
-            }
-          }
-          return bodyEnd - 1;
-        }
-        return index;
+      if (!pyodideReady) {
+        outputDiv.textContent = "Python engine is still loading. Please wait a moment.";
+        return;
       }
 
       try {
-        const lines = code.split('\n');
-        for (let i = 0; i < lines.length; i++) {
-          executeLine(lines[i], i, lines, globalScope, 0);
+        // Redirect standard output to capture it
+        let outputBuffer = "";
+        pyodide.setStdout({
+          batched: (text) => { outputBuffer += text + "\n"; }
+        });
+
+        await pyodide.runPythonAsync(code);
+
+        const finalOutput = outputBuffer.trim();
+        outputDiv.textContent = finalOutput || "(No output)";
+
+        if (finalOutput === step.expectedOutput) {
+          outputDiv.classList.add('success');
+          outputDiv.textContent += "\n\n✅ Task Passed! You can now click Next.";
+          if (!hasChecked) {
+            hasChecked = true;
+            correctAnswers++;
+            updateProgress();
+            feedbackBox.textContent = "Excellent! Your code produced the correct output.";
+            feedbackBox.classList.add('show', 'correct');
+            stepState[currentStepIndex] = {
+              isCorrect: true,
+              correctAnswers: correctAnswers,
+              explanation: feedbackBox.textContent,
+              selected: null,
+              output: outputDiv.textContent
+            };
+          }
+        } else {
+          outputDiv.classList.add('error');
+          outputDiv.textContent += `\n\n❌ Expected Output:\n${step.expectedOutput}`;
         }
       } catch (err) {
-        outputBuffer += "\n❌ Error: " + err.message;
-      }
-
-      const finalOutput = outputBuffer.trim();
-      outputDiv.textContent = finalOutput || "(No output)";
-      outputDiv.classList.add('show');
-
-      if (finalOutput === step.expectedOutput) {
-        outputDiv.classList.remove('error');
-        outputDiv.classList.add('success');
-        outputDiv.textContent += "\n\n✅ Task Passed!";
-        if (!hasChecked) {
-          hasChecked = true;
-          correctAnswers++;
-          updateProgress();
-          feedbackBox.textContent = "Excellent! Your code produced the correct output.";
-          feedbackBox.classList.add('show', 'correct');
-          stepState[currentStepIndex] = {
-            isCorrect: true,
-            correctAnswers: correctAnswers,
-            explanation: feedbackBox.textContent,
-            selected: null,
-            output: outputDiv.textContent
-          };
-        }
-      } else {
-        outputDiv.classList.remove('success');
+        outputDiv.textContent = "❌ Python Error:\n" + err.message;
         outputDiv.classList.add('error');
-        outputDiv.textContent += `\n\n❌ Expected Output:\n${step.expectedOutput}`;
-        stepState[currentStepIndex] = {
-          isCorrect: false,
-          correctAnswers: correctAnswers,
-          explanation: "Task incomplete. Check the output and try again.",
-          selected: null,
-          output: outputDiv.textContent
-        };
       }
     }
 
@@ -2079,7 +1860,7 @@ print(result)  <span class="comment"># 16</span>
     notesBtnStart.addEventListener('click', openNotes);
     notesClose.addEventListener('click', () => notesOverlay.classList.remove('active'));
 
-    // --- ASK MIKEY LOGIC (Now with Memory) ---
+    // --- ASK MIKEY LOGIC ---
     const askMikeyBtn = document.getElementById('askMikeyBtn');
     const askMikeyBtnStart = document.getElementById('askMikeyBtnStart');
     const chatOverlay = document.getElementById('chatOverlay');
@@ -2088,7 +1869,6 @@ print(result)  <span class="comment"># 16</span>
     const chatInput = document.getElementById('chatInput');
     const chatSend = document.getElementById('chatSend');
 
-    // This array holds the entire conversation history
     let chatHistory = [];
 
     function openChat() {
@@ -2103,16 +1883,12 @@ print(result)  <span class="comment"># 16</span>
       const div = document.createElement('div');
       div.className = `chat-message ${sender}`;
       
-      // Basic Markdown-to-HTML parsing for code blocks and inline code
       let formattedText = text
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
-        // Convert ```python ... ``` to <pre><code>...</code></pre>
         .replace(/```(?:python)?\n?([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
-        // Convert `inline code` to <code>inline code</code>
         .replace(/`([^`]+)`/g, '<code>$1</code>')
-        // Convert newlines to <br> (for non-code parts)
         .replace(/\n/g, '<br>');
         
       div.innerHTML = formattedText;
@@ -2124,11 +1900,8 @@ print(result)  <span class="comment"># 16</span>
     async function askMikey(question) {
       if (!question.trim()) return;
       
-      // Add user message to UI
       addMessage(question, 'user');
       chatInput.value = '';
-
-      // Add user message to history
       chatHistory.push({ role: "user", content: question });
 
       const typingDiv = addMessage("Mikey is thinking...", 'typing');
@@ -2136,10 +1909,7 @@ print(result)  <span class="comment"># 16</span>
       try {
         const response = await fetch('/api/mikey', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          // Send the ENTIRE history array
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ messages: chatHistory })
         });
 
@@ -2152,37 +1922,23 @@ print(result)  <span class="comment"># 16</span>
         const reply = data.reply;
         
         typingDiv.remove();
-        
-        // Add Mikey's reply to UI and history
         addMessage(reply, 'mikey');
         chatHistory.push({ role: "assistant", content: reply });
 
       } catch (error) {
         typingDiv.remove();
         addMessage("Error: " + error.message, 'mikey');
-        // Optionally remove the last user message from history if the call failed
         chatHistory.pop(); 
       }
     }
 
-    chatClose.addEventListener('click', () => {
-      chatOverlay.classList.remove('active');
-    });
-
-    chatSend.addEventListener('click', () => {
-      askMikey(chatInput.value);
-    });
-
+    chatClose.addEventListener('click', () => chatOverlay.classList.remove('active'));
+    chatSend.addEventListener('click', () => askMikey(chatInput.value));
     chatInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
-        askMikey(chatInput.value);
-      }
+      if (e.key === 'Enter') askMikey(chatInput.value);
     });
-
     chatOverlay.addEventListener('click', (e) => {
-      if (e.target === chatOverlay) {
-        chatOverlay.classList.remove('active');
-      }
+      if (e.target === chatOverlay) chatOverlay.classList.remove('active');
     });
 
   </script>
