@@ -1726,7 +1726,8 @@ print(result)  <span class="comment"># 16</span>
         });
 
         if (!response.ok) {
-          throw new Error("Network response was not ok");
+          const errorData = await response.json();
+          throw new Error(errorData.details || errorData.error || "Server error");
         }
 
         const data = await response.json();
@@ -1737,7 +1738,7 @@ print(result)  <span class="comment"># 16</span>
 
       } catch (error) {
         typingDiv.remove();
-        addMessage("Oops, I couldn't connect to my brain. Check your connection.", 'mikey');
+        addMessage("Error: " + error.message, 'mikey');
       }
     }
 
