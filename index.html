@@ -109,6 +109,13 @@
       color: #334155;
       margin-bottom: 20px;
     }
+    .note-text ul {
+      margin-left: 20px;
+      margin-top: 10px;
+    }
+    .note-text li {
+      margin-bottom: 8px;
+    }
     .code-snippet {
       background: #1e1e2f;
       color: #e2e8f0;
@@ -125,6 +132,7 @@
     .code-snippet .str { color: #86efac; }
     .code-snippet .num { color: #fda4af; }
     .code-snippet .comment { color: #94a3b8; font-style: italic; }
+    
     .quiz-container {
       display: flex;
       flex-direction: column;
@@ -581,17 +589,17 @@
     const courseSteps = [
       {
         type: 'note',
-        title: 'Conditional Statements',
+        title: 'Introduction to Conditionals',
         content: `
           <h2>Control the Flow</h2>
-          <p class="note-text">Conditional statements execute different blocks of code based on whether a specific condition is <strong>True</strong> or <strong>False</strong>.</p>
-          <p class="note-text">The <code>if</code> statement executes a block of code <strong>only if the condition is True</strong>. Python uses indentation to define the block.</p>
+          <p class="note-text">Conditional statements are the decision-makers of your code. They execute different blocks of code based on whether a specific condition is <strong>True</strong> or <strong>False</strong>.</p>
+          <p class="note-text">The <code>if</code> statement executes a block of code <strong>only if the condition is True</strong>. In Python, indentation (spacing) is crucial—it defines what code belongs inside the <code>if</code> block.</p>
           <div class="code-snippet">
-<span class="comment"># Syntax</span>
+<span class="comment"># Basic syntax of an if statement</span>
 <span class="kw">if</span> condition:
-    <span class="comment"># Code to run if True</span>
+    <span class="comment"># Code to run if True (must be indented)</span>
 
-<span class="comment"># Example</span>
+<span class="comment"># Example: Check if a number is positive</span>
 number = <span class="num">10</span>
 <span class="kw">if</span> number > <span class="num">0</span>:
     print(<span class="str">"The number is positive."</span>)
@@ -606,25 +614,18 @@ number = <span class="num">10</span>
         explanation: 'The if block executes only when its condition evaluates to True.'
       },
       {
-        type: 'mcq',
-        question: 'What is the output of this code?<br><code>x = 10<br>if x > 5:<br>    print("A")<br>elif x > 8:<br>    print("B")<br>else:<br>    print("C")</code>',
-        options: ['A', 'B', 'C', 'Error'],
-        correct: 0,
-        explanation: '10 > 5 is True, so the first block runs and the elif is skipped.'
-      },
-      {
         type: 'note',
         title: 'If-Else Statements',
         content: `
-          <h2>If-Else</h2>
+          <h2>What if it is False?</h2>
           <p class="note-text">The <code>if-else</code> statement provides an alternative block of code to run when the <code>if</code> condition is <strong>False</strong>. This ensures exactly one of the two blocks will execute.</p>
           <div class="code-snippet">
 <span class="kw">if</span> condition:
-    <span class="comment"># Code if True</span>
+    <span class="comment"># Code runs if True</span>
 <span class="kw">else</span>:
-    <span class="comment"># Code if False</span>
+    <span class="comment"># Code runs if False</span>
 
-<span class="comment"># Example: Even or Odd</span>
+<span class="comment"># Example: Check if a number is even or odd</span>
 num = <span class="num">7</span>
 <span class="kw">if</span> num % <span class="num">2</span> == <span class="num">0</span>:
     print(<span class="str">"The number is even."</span>)
@@ -641,17 +642,11 @@ num = <span class="num">7</span>
         explanation: '7 % 2 == 1 (not 0), so the condition is False. The else block runs.'
       },
       {
-        type: 'fill',
-        question: 'Fill in the blank: The keyword used to check another condition if the previous <code>if</code> fails is <code>______</code>.',
-        correctAnswers: ['elif'],
-        explanation: 'elif stands for "else if". It checks another condition only if the previous ones were False.'
-      },
-      {
         type: 'note',
         title: 'If-Elif-Else',
         content: `
           <h2>Multiple Conditions</h2>
-          <p class="note-text">The <code>if-elif-else</code> statement checks <strong>multiple conditions in order</strong>. The first condition that evaluates to True runs, and the rest are skipped. If none are True, the <code>else</code> block runs.</p>
+          <p class="note-text">When you have more than two possibilities, use <code>elif</code> (else if). The <code>if-elif-else</code> statement checks <strong>multiple conditions in order</strong>. The first condition that evaluates to True runs, and the rest are skipped. If none are True, the <code>else</code> block runs.</p>
           <div class="code-snippet">
 <span class="kw">if</span> condition1:
     <span class="comment"># Code for condition1</span>
@@ -660,7 +655,7 @@ num = <span class="num">7</span>
 <span class="kw">else</span>:
     <span class="comment"># Code if all are False</span>
 
-<span class="comment"># Example: Grading</span>
+<span class="comment"># Example: Grading system</span>
 score = <span class="num">85</span>
 <span class="kw">if</span> score >= <span class="num">90</span>:
     print(<span class="str">"Grade: A"</span>)
@@ -679,12 +674,25 @@ score = <span class="num">85</span>
         explanation: '85 is not >= 90, but it is >= 80. The first True condition is elif score >= 80.'
       },
       {
+        type: 'fill',
+        question: 'Fill in the blank: The keyword used to check another condition if the previous <code>if</code> fails is <code>______</code>.',
+        correctAnswers: ['elif'],
+        explanation: 'elif stands for "else if". It checks another condition only if the previous ones were False.'
+      },
+      {
         type: 'note',
         title: 'Nested Ifs & Logical Operators',
         content: `
-          <h2>Nested Ifs</h2>
-          <p class="note-text">You can place <code>if</code> statements inside other <code>if</code> statements. The inner <code>if</code> only runs if the outer condition is True.</p>
+          <h2>Complex Logic</h2>
+          <p class="note-text">You can place <code>if</code> statements inside other <code>if</code> statements. This is called nesting. The inner <code>if</code> only runs if the outer condition is True.</p>
+          <p class="note-text">You can also combine conditions using logical operators:</p>
+          <ul class="note-text">
+            <li><strong>and</strong>: True only if BOTH are True.</li>
+            <li><strong>or</strong>: True if AT LEAST ONE is True.</li>
+            <li><strong>not</strong>: Reverses the boolean value.</li>
+          </ul>
           <div class="code-snippet">
+<span class="comment"># Nested If</span>
 age = <span class="num">65</span>
 is_member = <span class="kw">True</span>
 <span class="kw">if</span> age >= <span class="num">60</span>:
@@ -692,16 +700,8 @@ is_member = <span class="kw">True</span>
         print(<span class="str">"30% discount"</span>)
     <span class="kw">else</span>:
         print(<span class="str">"20% discount"</span>)
-          </div>
-          
-          <h2>Logical Operators</h2>
-          <p class="note-text">Combine conditions using <code>and</code>, <code>or</code>, and <code>not</code>.</p>
-          <ul class="note-text" style="margin-left: 20px;">
-            <li><strong>and</strong>: True only if BOTH are True.</li>
-            <li><strong>or</strong>: True if AT LEAST ONE is True.</li>
-            <li><strong>not</strong>: Reverses the boolean value.</li>
-          </ul>
-          <div class="code-snippet">
+
+<span class="comment"># Logical Operators</span>
 <span class="kw">if</span> age >= <span class="num">18</span> <span class="kw">and</span> born_again:
     print(<span class="str">"Welcome!"</span>)
           </div>
@@ -732,7 +732,7 @@ is_member = <span class="kw">True</span>
         title: 'For Loops',
         content: `
           <h2>Repeating Code</h2>
-          <p class="note-text">Loops repeat blocks of code. A <code>for</code> loop iterates over items in a sequence (like a list, string, or range).</p>
+          <p class="note-text">Loops repeat blocks of code. A <code>for</code> loop iterates over items in a sequence (like a list, string, or range). It is used when you know how many times you want to loop.</p>
           <div class="code-snippet">
 <span class="comment"># Syntax</span>
 <span class="kw">for</span> variable <span class="kw">in</span> sequence:
@@ -756,11 +756,11 @@ fruits = [<span class="str">"apple"</span>, <span class="str">"banana"</span>, <
         type: 'note',
         title: 'The range() Function',
         content: `
-          <h2>range()</h2>
+          <h2>Looping a Specific Number of Times</h2>
           <p class="note-text">The <code>range()</code> function generates a sequence of numbers. This is perfect for looping a specific number of times.</p>
-          <ul class="note-text" style="margin-left: 20px;">
+          <ul class="note-text">
             <li><code>range(5)</code> generates 0, 1, 2, 3, 4.</li>
-            <li><code>range(1, 6)</code> generates 1, 2, 3, 4, 5.</li>
+            <li><code>range(1, 6)</code> generates 1, 2, 3, 4, 5 (stops before the second number).</li>
           </ul>
           <div class="code-snippet">
 <span class="kw">for</span> i <span class="kw">in</span> range(<span class="num">5</span>):
@@ -792,8 +792,9 @@ fruits = [<span class="str">"apple"</span>, <span class="str">"banana"</span>, <
         type: 'note',
         title: 'While Loops',
         content: `
-          <h2>While Loops</h2>
+          <h2>Loop Until a Condition Changes</h2>
           <p class="note-text">A <code>while</code> loop continues executing as long as a condition remains <strong>True</strong>. It is used when you don't know the exact number of iterations in advance.</p>
+          <p class="note-text"><em>Warning: If the condition never becomes False, you will create an infinite loop!</em></p>
           <div class="code-snippet">
 <span class="kw">while</span> condition:
     <span class="comment"># Code to execute while True</span>
@@ -826,10 +827,11 @@ print(<span class="str">"Go!"</span>)
         title: 'Loop Control',
         content: `
           <h2>Break, Continue, Pass</h2>
-          <ul class="note-text" style="margin-left: 20px;">
+          <p class="note-text">Python provides three statements to control the flow of loops:</p>
+          <ul class="note-text">
             <li><strong>break</strong>: Exits the loop entirely.</li>
             <li><strong>continue</strong>: Skips the current iteration and moves to the next.</li>
-            <li><strong>pass</strong>: Does nothing (placeholder).</li>
+            <li><strong>pass</strong>: Does nothing (acts as a placeholder).</li>
           </ul>
           <div class="code-snippet">
 <span class="comment"># break example</span>
@@ -891,7 +893,7 @@ greet()  <span class="comment"># Calls the function</span>
         type: 'note',
         title: 'Parameters & Arguments',
         content: `
-          <h2>Parameters & Arguments</h2>
+          <h2>Passing Data to Functions</h2>
           <p class="note-text"><strong>Parameters</strong> are placeholders in the function definition. <strong>Arguments</strong> are the actual values passed when calling the function.</p>
           <div class="code-snippet">
 <span class="comment"># a and b are parameters</span>
@@ -921,7 +923,7 @@ print(result)  <span class="comment"># 8</span>
         type: 'note',
         title: 'The return Statement',
         content: `
-          <h2>Return</h2>
+          <h2>Getting Data Back</h2>
           <p class="note-text">The <code>return</code> statement sends a value back to the caller and exits the function. If a function has no <code>return</code>, it returns <code>None</code>.</p>
           <div class="code-snippet">
 <span class="kw">def</span> <span class="fn">square</span>(x):
