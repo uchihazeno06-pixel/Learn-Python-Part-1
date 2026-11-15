@@ -1,0 +1,1771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Python Mastery · Interactive Course</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      background: #ffffff;
+      color: #1e293b;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .app-header {
+      padding: 16px 20px;
+      background: #ffffff;
+      border-bottom: 2px solid #f1f5f9;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      z-index: 10;
+    }
+    .close-btn {
+      background: #f1f5f9;
+      border: none;
+      font-size: 1.2rem;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #64748b;
+    }
+    .progress-container {
+      flex: 1;
+      height: 16px;
+      background: #e2e8f0;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      background: #58cc02;
+      width: 0%;
+      border-radius: 10px;
+      transition: width 0.3s ease;
+      box-shadow: inset 0 -4px 0 rgba(0,0,0,0.1);
+    }
+    .score-badge {
+      font-weight: 800;
+      color: #58cc02;
+      font-size: 0.95rem;
+      min-width: 45px;
+      text-align: right;
+    }
+    .main-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 20px 120px 20px;
+      display: flex;
+      flex-direction: column;
+    }
+    h2 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 16px;
+      line-height: 1.2;
+    }
+    .note-text {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      color: #334155;
+      margin-bottom: 20px;
+    }
+    .code-snippet {
+      background: #1e1e2f;
+      color: #e2e8f0;
+      padding: 20px;
+      border-radius: 16px;
+      font-family: 'Fira Code', 'Courier New', monospace;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      overflow-x: auto;
+      margin-bottom: 24px;
+      white-space: pre-wrap;
+    }
+    .code-snippet .kw { color: #facc15; font-weight: 600; }
+    .code-snippet .str { color: #86efac; }
+    .code-snippet .num { color: #fda4af; }
+    .code-snippet .comment { color: #94a3b8; font-style: italic; }
+    .quiz-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .option-btn {
+      background: #ffffff;
+      border: 2px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 18px 20px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #1e293b;
+      text-align: left;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #e2e8f0;
+      transition: 0.1s;
+      display: flex;
+      align-items: center;
+    }
+    .option-btn:active {
+      transform: translateY(4px);
+      box-shadow: 0 0 0 #e2e8f0;
+    }
+    .option-btn.correct {
+      background: #d7ffb8;
+      border-color: #58cc02;
+      box-shadow: 0 4px 0 #58cc02;
+      color: #1e4b00;
+    }
+    .option-btn.wrong {
+      background: #ffe6e6;
+      border-color: #ef4444;
+      box-shadow: 0 4px 0 #ef4444;
+      color: #991b1b;
+    }
+    .option-btn.disabled {
+      pointer-events: none;
+      opacity: 0.9;
+    }
+    .fill-input {
+      width: 100%;
+      padding: 18px 20px;
+      border: 2px solid #e2e8f0;
+      border-radius: 16px;
+      font-size: 1.05rem;
+      font-family: 'Fira Code', monospace;
+      background: #ffffff;
+      box-shadow: 0 4px 0 #e2e8f0;
+      transition: 0.2s;
+      margin-bottom: 16px;
+    }
+    .fill-input:focus {
+      outline: none;
+      border-color: #58cc02;
+      box-shadow: 0 4px 0 #58cc02;
+    }
+    .fill-input:disabled {
+      background: #f8fafc;
+      color: #334155;
+    }
+    .task-prompt {
+      background: #fff8e1;
+      border-left: 6px solid #ffc800;
+      padding: 16px 20px;
+      border-radius: 12px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #b45309;
+      margin-bottom: 20px;
+    }
+    .editor-area {
+      width: 100%;
+      height: 200px;
+      background: #1e1e2f;
+      color: #f8f8f2;
+      font-family: 'Fira Code', monospace;
+      font-size: 1rem;
+      padding: 16px;
+      border-radius: 16px;
+      border: 2px solid #44475a;
+      resize: none;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+    .editor-area:focus {
+      outline: none;
+      border-color: #58cc02;
+    }
+    .console-output {
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 16px;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.95rem;
+      color: #334155;
+      min-height: 60px;
+      white-space: pre-wrap;
+      margin-bottom: 16px;
+      display: none;
+    }
+    .console-output.show { display: block; }
+    .console-output.error { color: #ef4444; border-color: #ef4444; background: #fef2f2; }
+    .console-output.success { color: #166534; border-color: #58cc02; background: #f0fdf4; }
+    .app-footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      padding: 16px 20px;
+      background: #ffffff;
+      border-top: 2px solid #f1f5f9;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      z-index: 10;
+    }
+    .feedback-box {
+      padding: 16px;
+      border-radius: 16px;
+      font-weight: 700;
+      font-size: 1.05rem;
+      display: none;
+      text-align: center;
+    }
+    .feedback-box.show { display: block; }
+    .feedback-box.correct { background: #d7ffb8; color: #1e4b00; }
+    .feedback-box.wrong { background: #ffe6e6; color: #991b1b; }
+    .button-group {
+      display: flex;
+      gap: 12px;
+    }
+    .btn-prev {
+      flex: 1;
+      padding: 18px;
+      border: 2px solid #e2e8f0;
+      border-radius: 16px;
+      font-size: 1.15rem;
+      font-weight: 800;
+      background: #ffffff;
+      color: #64748b;
+      cursor: pointer;
+      transition: 0.1s;
+      box-shadow: 0 4px 0 #e2e8f0;
+    }
+    .btn-prev:active {
+      transform: translateY(4px);
+      box-shadow: 0 0 0 #e2e8f0;
+    }
+    .btn-prev:disabled {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+    .action-btn {
+      flex: 2;
+      padding: 18px;
+      border: none;
+      border-radius: 16px;
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: 0.1s;
+      background: #e2e8f0;
+      color: #94a3b8;
+      box-shadow: 0 4px 0 #cbd5e1;
+    }
+    .action-btn.active {
+      background: #58cc02;
+      color: white;
+      box-shadow: 0 4px 0 #3a9b00;
+    }
+    .action-btn:active {
+      transform: translateY(4px);
+      box-shadow: 0 0 0 #3a9b00;
+    }
+    .action-btn:disabled {
+      cursor: not-allowed;
+    }
+    .center-btn {
+      width: 200px;
+      margin: 20px auto 0 auto;
+      display: block;
+      flex: none;
+    }
+    .screen {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      text-align: center;
+      padding: 20px;
+    }
+    .screen.active {
+      display: flex;
+    }
+    .screen h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 20px;
+    }
+    .screen p {
+      font-size: 1.2rem;
+      color: #64748b;
+      margin-bottom: 30px;
+    }
+    .trophy-icon {
+      font-size: 5rem;
+      margin-bottom: 20px;
+    }
+    .score-circle {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background: #f0fdf4;
+      border: 8px solid #58cc02;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+    .score-circle span {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: #58cc02;
+    }
+    .score-circle small {
+      font-size: 1rem;
+      color: #64748b;
+      font-weight: 600;
+    }
+    .credit-footer {
+      position: fixed;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.8rem;
+      color: #94a3b8;
+      font-weight: 600;
+      z-index: 5;
+      pointer-events: none;
+    }
+    .credit-footer span {
+      color: #58cc02;
+    }
+    .hidden { display: none !important; }
+
+    .ask-mikey-btn {
+      position: fixed;
+      bottom: 100px;
+      right: 20px;
+      background: #7c3aed;
+      color: white;
+      border: none;
+      border-radius: 50px;
+      padding: 16px 24px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 6px 0 #5b21b6;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: 0.1s;
+    }
+    .ask-mikey-btn:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 #5b21b6;
+    }
+
+    .chat-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 200;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .chat-overlay.active {
+      display: flex;
+    }
+    .chat-panel {
+      background: #ffffff;
+      width: 100%;
+      max-width: 600px;
+      height: 80vh;
+      border-radius: 24px 24px 0 0;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 -10px 40px rgba(0,0,0,0.2);
+      animation: slideUp 0.3s ease-out;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+    .chat-header {
+      background: #7c3aed;
+      color: white;
+      padding: 20px;
+      border-radius: 24px 24px 0 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .chat-header h3 {
+      font-size: 1.3rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .chat-close {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      font-size: 1.2rem;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      background: #f8fafc;
+    }
+    .chat-message {
+      max-width: 85%;
+      padding: 14px 18px;
+      border-radius: 18px;
+      font-size: 1rem;
+      line-height: 1.5;
+      font-weight: 500;
+    }
+    .chat-message.user {
+      background: #7c3aed;
+      color: white;
+      align-self: flex-end;
+      border-bottom-right-radius: 4px;
+    }
+    .chat-message.mikey {
+      background: #ffffff;
+      color: #1e293b;
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
+      border: 2px solid #e2e8f0;
+    }
+    .chat-message.typing {
+      background: #e2e8f0;
+      color: #64748b;
+      align-self: flex-start;
+      font-style: italic;
+    }
+    .chat-input-area {
+      padding: 16px;
+      background: white;
+      border-top: 2px solid #e2e8f0;
+      display: flex;
+      gap: 12px;
+    }
+    .chat-input-area input {
+      flex: 1;
+      padding: 16px;
+      border: 2px solid #e2e8f0;
+      border-radius: 50px;
+      font-size: 1rem;
+      outline: none;
+    }
+    .chat-input-area input:focus {
+      border-color: #7c3aed;
+    }
+    .chat-send-btn {
+      background: #7c3aed;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 54px;
+      height: 54px;
+      font-size: 1.4rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="app-header hidden" id="appHeader">
+    <button class="close-btn" id="closeBtn">✕</button>
+    <div class="progress-container">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <div class="score-badge" id="scoreBadge">0%</div>
+  </header>
+
+  <div class="screen active" id="startScreen">
+    <div class="trophy-icon">🐍</div>
+    <h1>Python Mastery</h1>
+    <p>Conditionals, Loops & Functions</p>
+    <button class="action-btn active center-btn" id="startBtn">Start Learning</button>
+  </div>
+
+  <main class="main-content hidden" id="mainContent">
+    <div id="contentArea"></div>
+  </main>
+
+  <footer class="app-footer hidden" id="appFooter">
+    <div class="feedback-box" id="feedbackBox"></div>
+    <div class="button-group">
+      <button class="btn-prev" id="prevBtn" disabled>Previous</button>
+      <button class="action-btn" id="actionBtn" disabled>Check Answer</button>
+    </div>
+  </footer>
+
+  <div class="screen" id="resultsScreen">
+    <div class="trophy-icon">🏆</div>
+    <h1>Course Complete!</h1>
+    <div class="score-circle">
+      <span id="finalScoreText">0%</span>
+      <small>Score</small>
+    </div>
+    <p id="resultsMessage">Great job!</p>
+    <button class="action-btn active center-btn" id="restartBtn">Restart Course</button>
+  </div>
+
+  <div class="credit-footer">Made by <span>Zeno</span></div>
+
+  <button class="ask-mikey-btn" id="askMikeyBtn">🤖 Ask Mikey</button>
+
+  <div class="chat-overlay" id="chatOverlay">
+    <div class="chat-panel">
+      <div class="chat-header">
+        <h3>🤖 Ask Mikey</h3>
+        <button class="chat-close" id="chatClose">✕</button>
+      </div>
+      <div class="chat-messages" id="chatMessages">
+        <div class="chat-message mikey">Hi! I'm Mikey. Ask me anything about Python. I keep it short and straight to the point.</div>
+      </div>
+      <div class="chat-input-area">
+        <input type="text" id="chatInput" placeholder="Ask about Python...">
+        <button class="chat-send-btn" id="chatSend">➤</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const courseSteps = [
+      {
+        type: 'note',
+        title: 'Conditional Statements',
+        content: `
+          <h2>Control the Flow</h2>
+          <p class="note-text">Conditional statements execute different blocks of code based on whether a specific condition is <strong>True</strong> or <strong>False</strong>.</p>
+          <p class="note-text">The <code>if</code> statement executes a block of code <strong>only if the condition is True</strong>. Python uses indentation to define the block.</p>
+          <div class="code-snippet">
+<span class="comment"># Syntax</span>
+<span class="kw">if</span> condition:
+    <span class="comment"># Code to run if True</span>
+
+<span class="comment"># Example</span>
+number = <span class="num">10</span>
+<span class="kw">if</span> number > <span class="num">0</span>:
+    print(<span class="str">"The number is positive."</span>)
+          </div>
+        `
+      },
+      {
+        type: 'mcq',
+        question: 'When does the code inside an <code>if</code> statement execute?',
+        options: ['Always, regardless of the condition', 'Only when the condition evaluates to True', 'Only when the condition evaluates to False', 'Only if the code is indented'],
+        correct: 1,
+        explanation: 'The if block executes only when its condition evaluates to True.'
+      },
+      {
+        type: 'mcq',
+        question: 'What is the output of this code?<br><code>x = 10<br>if x > 5:<br>    print("A")<br>elif x > 8:<br>    print("B")<br>else:<br>    print("C")</code>',
+        options: ['A', 'B', 'C', 'Error'],
+        correct: 0,
+        explanation: '10 > 5 is True, so the first block runs and the elif is skipped.'
+      },
+      {
+        type: 'note',
+        title: 'If-Else Statements',
+        content: `
+          <h2>If-Else</h2>
+          <p class="note-text">The <code>if-else</code> statement provides an alternative block of code to run when the <code>if</code> condition is <strong>False</strong>. This ensures exactly one of the two blocks will execute.</p>
+          <div class="code-snippet">
+<span class="kw">if</span> condition:
+    <span class="comment"># Code if True</span>
+<span class="kw">else</span>:
+    <span class="comment"># Code if False</span>
+
+<span class="comment"># Example: Even or Odd</span>
+num = <span class="num">7</span>
+<span class="kw">if</span> num % <span class="num">2</span> == <span class="num">0</span>:
+    print(<span class="str">"The number is even."</span>)
+<span class="kw">else</span>:
+    print(<span class="str">"The number is odd."</span>)
+          </div>
+        `
+      },
+      {
+        type: 'mcq',
+        question: 'Given <code>num = 7</code>, what is the output of the code above?',
+        options: ['The number is even.', 'The number is odd.', 'No output', 'Syntax Error'],
+        correct: 1,
+        explanation: '7 % 2 == 1 (not 0), so the condition is False. The else block runs.'
+      },
+      {
+        type: 'fill',
+        question: 'Fill in the blank: The keyword used to check another condition if the previous <code>if</code> fails is <code>______</code>.',
+        correctAnswers: ['elif'],
+        explanation: 'elif stands for "else if". It checks another condition only if the previous ones were False.'
+      },
+      {
+        type: 'note',
+        title: 'If-Elif-Else',
+        content: `
+          <h2>Multiple Conditions</h2>
+          <p class="note-text">The <code>if-elif-else</code> statement checks <strong>multiple conditions in order</strong>. The first condition that evaluates to True runs, and the rest are skipped. If none are True, the <code>else</code> block runs.</p>
+          <div class="code-snippet">
+<span class="kw">if</span> condition1:
+    <span class="comment"># Code for condition1</span>
+<span class="kw">elif</span> condition2:
+    <span class="comment"># Code for condition2</span>
+<span class="kw">else</span>:
+    <span class="comment"># Code if all are False</span>
+
+<span class="comment"># Example: Grading</span>
+score = <span class="num">85</span>
+<span class="kw">if</span> score >= <span class="num">90</span>:
+    print(<span class="str">"Grade: A"</span>)
+<span class="kw">elif</span> score >= <span class="num">80</span>:
+    print(<span class="str">"Grade: B"</span>)
+<span class="kw">else</span>:
+    print(<span class="str">"Grade: F"</span>)
+          </div>
+        `
+      },
+      {
+        type: 'mcq',
+        question: 'With <code>score = 85</code>, what grade is printed?',
+        options: ['Grade: A', 'Grade: B', 'Grade: F', 'Error'],
+        correct: 1,
+        explanation: '85 is not >= 90, but it is >= 80. The first True condition is elif score >= 80.'
+      },
+      {
+        type: 'note',
+        title: 'Nested Ifs & Logical Operators',
+        content: `
+          <h2>Nested Ifs</h2>
+          <p class="note-text">You can place <code>if</code> statements inside other <code>if</code> statements. The inner <code>if</code> only runs if the outer condition is True.</p>
+          <div class="code-snippet">
+age = <span class="num">65</span>
+is_member = <span class="kw">True</span>
+<span class="kw">if</span> age >= <span class="num">60</span>:
+    <span class="kw">if</span> is_member:
+        print(<span class="str">"30% discount"</span>)
+    <span class="kw">else</span>:
+        print(<span class="str">"20% discount"</span>)
+          </div>
+          
+          <h2>Logical Operators</h2>
+          <p class="note-text">Combine conditions using <code>and</code>, <code>or</code>, and <code>not</code>.</p>
+          <ul class="note-text" style="margin-left: 20px;">
+            <li><strong>and</strong>: True only if BOTH are True.</li>
+            <li><strong>or</strong>: True if AT LEAST ONE is True.</li>
+            <li><strong>not</strong>: Reverses the boolean value.</li>
+          </ul>
+          <div class="code-snippet">
+<span class="kw">if</span> age >= <span class="num">18</span> <span class="kw">and</span> born_again:
+    print(<span class="str">"Welcome!"</span>)
+          </div>
+        `
+      },
+      {
+        type: 'mcq',
+        question: 'In the nested if example, what is printed if <code>age = 65</code> and <code>is_member = True</code>?',
+        options: ['30% discount', '20% discount', 'No output', 'Error'],
+        correct: 0,
+        explanation: 'age >= 60 is True, so we check the inner if. is_member is True, so the 30% message prints.'
+      },
+      {
+        type: 'mcq',
+        question: 'Which logical operator requires <strong>both</strong> conditions to be True?',
+        options: ['or', 'and', 'not', 'xor'],
+        correct: 1,
+        explanation: 'The "and" operator returns True only if both operands are True.'
+      },
+      {
+        type: 'fill',
+        question: 'Fill in the blank: The logical operator used to reverse a boolean value is <code>______</code>.',
+        correctAnswers: ['not'],
+        explanation: 'not True becomes False, and not False becomes True.'
+      },
+      {
+        type: 'note',
+        title: 'For Loops',
+        content: `
+          <h2>Repeating Code</h2>
+          <p class="note-text">Loops repeat blocks of code. A <code>for</code> loop iterates over items in a sequence (like a list, string, or range).</p>
+          <div class="code-snippet">
+<span class="comment"># Syntax</span>
+<span class="kw">for</span> variable <span class="kw">in</span> sequence:
+    <span class="comment"># Code to execute for each item</span>
+
+<span class="comment"># Example: Print each fruit</span>
+fruits = [<span class="str">"apple"</span>, <span class="str">"banana"</span>, <span class="str">"cherry"</span>]
+<span class="kw">for</span> fruit <span class="kw">in</span> fruits:
+    print(fruit)
+          </div>
+        `
+      },
+      {
+        type: 'mcq',
+        question: 'What is the primary purpose of a <code>for</code> loop?',
+        options: ['To run code as long as a condition is True.', 'To iterate over items in a sequence.', 'To define a reusable block of code.', 'To handle errors.'],
+        correct: 1,
+        explanation: 'for loops are designed to iterate over sequences like lists, strings, and ranges.'
+      },
+      {
+        type: 'note',
+        title: 'The range() Function',
+        content: `
+          <h2>range()</h2>
+          <p class="note-text">The <code>range()</code> function generates a sequence of numbers. This is perfect for looping a specific number of times.</p>
+          <ul class="note-text" style="margin-left: 20px;">
+            <li><code>range(5)</code> generates 0, 1, 2, 3, 4.</li>
+            <li><code>range(1, 6)</code> generates 1, 2, 3, 4, 5.</li>
+          </ul>
+          <div class="code-snippet">
+<span class="kw">for</span> i <span class="kw">in</span> range(<span class="num">5</span>):
+    print(i)
+          </div>
+        `
+      },
+      {
+        type: 'mcq',
+        question: 'How many times will <code>for i in range(5):</code> execute?',
+        options: ['4 times', '5 times', '6 times', 'Infinite'],
+        correct: 1,
+        explanation: 'range(5) generates 0, 1, 2, 3, 4 — which is 5 numbers.'
+      },
+      {
+        type: 'fill',
+        question: 'Fill in the blank: The function used to generate a sequence of numbers is <code>______()</code>.',
+        correctAnswers: ['range'],
+        explanation: 'range() generates numbers for loops.'
+      },
+      {
+        type: 'mcq',
+        question: 'What sequence does <code>range(1, 5)</code> generate?',
+        options: ['1, 2, 3, 4, 5', '1, 2, 3, 4', '0, 1, 2, 3, 4', '1, 2, 3, 4, 5, 6'],
+        correct: 1,
+        explanation: 'range(start, stop) includes start but excludes stop. So it generates 1, 2, 3, 4.'
+      },
+      {
+        type: 'note',
+        title: 'While Loops',
+        content: `
+          <h2>While Loops</h2>
+          <p class="note-text">A <code>while</code> loop continues executing as long as a condition remains <strong>True</strong>. It is used when you don't know the exact number of iterations in advance.</p>
+          <div class="code-snippet">
+<span class="kw">while</span> condition:
+    <span class="comment"># Code to execute while True</span>
+
+<span class="comment"># Example: Countdown</span>
+count = <span class="num">3</span>
+<span class="kw">while</span> count > <span class="num">0</span>:
+    print(count)
+    count -= <span class="num">1</span>
+print(<span class="str">"Go!"</span>)
+          </div>
+        `
+      },
+      {
+        type: 'mcq',
+        question: 'What is the output of the countdown code above?',
+        options: ['3 2 1 Go!', '3 2 1 0 Go!', 'Go! 3 2 1', 'Nothing'],
+        correct: 0,
+        explanation: 'count starts at 3. It prints 3, 2, 1, then count becomes 0. The loop ends and prints "Go!".'
+      },
+      {
+        type: 'mcq',
+        question: 'When should you use a <code>while</code> loop instead of a <code>for</code> loop?',
+        options: ['When iterating over a list.', 'When you know exactly how many times to loop.', 'When the number of iterations is unknown and depends on a condition.', 'When defining a function.'],
+        correct: 2,
+        explanation: 'while loops are best when you are looping until a condition changes, rather than a fixed number of times.'
+      },
+      {
+        type: 'note',
+        title: 'Loop Control',
+        content: `
+          <h2>Break, Continue, Pass</h2>
+          <ul class="note-text" style="margin-left: 20px;">
+            <li><strong>break</strong>: Exits the loop entirely.</li>
+            <li><strong>continue</strong>: Skips the current iteration and moves to the next.</li>
+            <li><strong>pass</strong>: Does nothing (placeholder).</li>
+          </ul>
+          <div class="code-snippet">
+<span class="comment"># break example</span>
+<span class="kw">for</span> num <span class="kw">in</span> [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>]:
+    <span class="kw">if</span> num == <span class="num">4</span>:
+        <span class="kw">break</span>
+    print(num)  <span class="comment"># Output: 1, 2, 3</span>
+
+<span class="comment"># continue example</span>
+<span class="kw">for</span> i <span class="kw">in</span> range(<span class="num">1</span>, <span class="num">6</span>):
+    <span class="kw">if</span> i == <span class="num">3</span>:
+        <span class="kw">continue</span>
+    print(i)  <span class="comment"># Output: 1, 2, 4, 5</span>
+          </div>
+        `
+      },
+      {
+        type: 'mcq',
+        question: 'What does <code>continue</code> do?',
+        options: ['Exits the loop entirely.', 'Skips the current iteration and moves to the next.', 'Restarts the loop.', 'Pauses the loop.'],
+        correct: 1,
+        explanation: 'continue skips the rest of the current iteration and jumps to the next one.'
+      },
+      {
+        type: 'fill',
+        question: 'Fill in the blank: The statement used to exit a loop entirely is <code>______</code>.',
+        correctAnswers: ['break'],
+        explanation: 'break stops the loop completely.'
+      },
+      {
+        type: 'mcq',
+        question: 'What is the output of the <code>break</code> loop example above?',
+        options: ['1 2 3 4 5', '1 2 3 4', '1 2 3', '4 5'],
+        correct: 2,
+        explanation: 'The loop prints 1, 2, 3. When num == 4, break stops the loop.'
+      },
+      {
+        type: 'note',
+        title: 'Functions',
+        content: `
+          <h2>Reusable Code</h2>
+          <p class="note-text">A <strong>function</strong> is a block of code that performs a specific task. You define it with <code>def</code> and call it to execute. Functions help avoid repetitive code and make programs easier to maintain.</p>
+          <div class="code-snippet">
+<span class="kw">def</span> <span class="fn">greet</span>():
+    print(<span class="str">"Hello, Python!"</span>)
+
+greet()  <span class="comment"># Calls the function</span>
+          </div>
+        `
+      },
+      {
+        type: 'mcq',
+        question: 'Which keyword is used to define a function in Python?',
+        options: ['function', 'def', 'define', 'fun'],
+        correct: 1,
+        explanation: 'Python uses the `def` keyword.'
+      },
+      {
+        type: 'note',
+        title: 'Parameters & Arguments',
+        content: `
+          <h2>Parameters & Arguments</h2>
+          <p class="note-text"><strong>Parameters</strong> are placeholders in the function definition. <strong>Arguments</strong> are the actual values passed when calling the function.</p>
+          <div class="code-snippet">
+<span class="comment"># a and b are parameters</span>
+<span class="kw">def</span> <span class="fn">my_sum</span>(a, b):
+    <span class="kw">return</span> a + b
+
+<span class="comment"># 3 and 5 are arguments</span>
+result = my_sum(<span class="num">3</span>, <span class="num">5</span>)
+print(result)  <span class="comment"># 8</span>
+          </div>
+        `
+      },
+      {
+        type: 'mcq',
+        question: 'In <code>def my_sum(a, b):</code>, what are <code>a</code> and <code>b</code> called?',
+        options: ['Arguments', 'Parameters', 'Return values', 'Variables'],
+        correct: 1,
+        explanation: 'In the function definition, a and b are parameters.'
+      },
+      {
+        type: 'fill',
+        question: 'Fill in the blank: The actual values passed to a function when calling it are called <code>______</code>.',
+        correctAnswers: ['arguments', 'argument'],
+        explanation: 'The values passed during a call are arguments.'
+      },
+      {
+        type: 'note',
+        title: 'The return Statement',
+        content: `
+          <h2>Return</h2>
+          <p class="note-text">The <code>return</code> statement sends a value back to the caller and exits the function. If a function has no <code>return</code>, it returns <code>None</code>.</p>
+          <div class="code-snippet">
+<span class="kw">def</span> <span class="fn">square</span>(x):
+    <span class="kw">return</span> x * x
+
+result = square(<span class="num">4</span>)
+print(result)  <span class="comment"># 16</span>
+          </div>
+        `
+      },
+      {
+        type: 'mcq',
+        question: 'What does <code>return</code> do?',
+        options: ['Prints a value to the screen.', 'Sends a value back and exits the function.', 'Restarts the function.', 'Defines a variable.'],
+        correct: 1,
+        explanation: 'return ends the function and sends a value back to where it was called.'
+      },
+      {
+        type: 'mcq',
+        question: 'What is the output of <code>print(square(5))</code>?',
+        options: ['5', '10', '25', 'None'],
+        correct: 2,
+        explanation: 'square(5) returns 5 * 5 = 25.'
+      },
+      {
+        type: 'fill',
+        question: 'Fill in the blank: A function without a <code>return</code> statement returns <code>______</code> by default.',
+        correctAnswers: ['none'],
+        explanation: 'The default return value is None.'
+      },
+      {
+        type: 'note',
+        title: 'Practical Task 1: The Positive Check',
+        content: `
+          <h2>Task 1: If Statement</h2>
+          <p class="note-text">Write a program that checks if a variable <code>num = 10</code> is positive. If it is, print <code>"Positive"</code>.</p>
+          <p class="note-text"><em>Hint: Use an if statement.</em></p>
+        `
+      },
+      {
+        type: 'task',
+        question: 'Write code to check if num = 10 is positive.',
+        expectedOutput: 'Positive',
+        starterCode: 'num = 10\n# Write your if statement below\n'
+      },
+      {
+        type: 'note',
+        title: 'Practical Task 2: Even or Odd',
+        content: `
+          <h2>Task 2: If-Else</h2>
+          <p class="note-text">Write a program that checks if <code>num = 7</code> is even or odd. Print <code>"Even"</code> if it is even, and <code>"Odd"</code> if it is odd.</p>
+          <p class="note-text"><em>Hint: Use the modulus operator <code>%</code>. If <code>num % 2 == 0</code>, it is even.</em></p>
+        `
+      },
+      {
+        type: 'task',
+        question: 'Write code to check if num = 7 is even or odd.',
+        expectedOutput: 'Odd',
+        starterCode: 'num = 7\n# Write your if-else statement below\n'
+      },
+      {
+        type: 'note',
+        title: 'Practical Task 3: Grading System',
+        content: `
+          <h2>Task 3: If-Elif-Else</h2>
+          <p class="note-text">Write a program that assigns a grade based on <code>score = 85</code>.</p>
+          <p class="note-text">90+ is "A", 80-89 is "B", 70-79 is "C", and below 70 is "F". Print the grade.</p>
+        `
+      },
+      {
+        type: 'task',
+        question: 'Write code to assign a grade for score = 85.',
+        expectedOutput: 'B',
+        starterCode: 'score = 85\n# Write your if-elif-else statement below\n'
+      },
+      {
+        type: 'note',
+        title: 'Practical Task 4: Loop through a List',
+        content: `
+          <h2>Task 4: For Loop</h2>
+          <p class="note-text">Create a list <code>fruits = ["apple", "banana", "cherry"]</code>. Use a <code>for</code> loop to print each fruit on a new line.</p>
+        `
+      },
+      {
+        type: 'task',
+        question: 'Write a for loop to print each fruit.',
+        expectedOutput: 'apple\nbanana\ncherry',
+        starterCode: 'fruits = ["apple", "banana", "cherry"]\n# Write your for loop below\n'
+      },
+      {
+        type: 'note',
+        title: 'Practical Task 5: Range Loop',
+        content: `
+          <h2>Task 5: range()</h2>
+          <p class="note-text">Use a <code>for</code> loop with <code>range()</code> to print the numbers 0, 1, 2, 3, 4.</p>
+        `
+      },
+      {
+        type: 'task',
+        question: 'Write a for loop using range() to print 0 through 4.',
+        expectedOutput: '0\n1\n2\n3\n4',
+        starterCode: '# Write your for loop using range() below\n'
+      },
+      {
+        type: 'note',
+        title: 'Practical Task 6: While Countdown',
+        content: `
+          <h2>Task 6: While Loop</h2>
+          <p class="note-text">Write a <code>while</code> loop that prints the numbers 3, 2, 1, and then prints "Go!".</p>
+        `
+      },
+      {
+        type: 'task',
+        question: 'Write a while loop to countdown from 3 to 1, then print "Go!".',
+        expectedOutput: '3\n2\n1\nGo!',
+        starterCode: 'count = 3\n# Write your while loop below\n'
+      },
+      {
+        type: 'note',
+        title: 'Practical Task 7: Break Statement',
+        content: `
+          <h2>Task 7: break</h2>
+          <p class="note-text">Write a <code>for</code> loop that iterates through numbers 1 to 5. If the number is 4, use <code>break</code> to stop the loop. Print the numbers as you go.</p>
+        `
+      },
+      {
+        type: 'task',
+        question: 'Write a loop that prints 1, 2, 3 and breaks at 4.',
+        expectedOutput: '1\n2\n3',
+        starterCode: '# Write your for loop with break below\n'
+      },
+      {
+        type: 'note',
+        title: 'Practical Task 8: Continue Statement',
+        content: `
+          <h2>Task 8: continue</h2>
+          <p class="note-text">Write a <code>for</code> loop that iterates through numbers 1 to 5. If the number is 3, use <code>continue</code> to skip it. Print the other numbers.</p>
+        `
+      },
+      {
+        type: 'task',
+        question: 'Write a loop that skips printing 3.',
+        expectedOutput: '1\n2\n4\n5',
+        starterCode: '# Write your for loop with continue below\n'
+      },
+      {
+        type: 'note',
+        title: 'Practical Task 9: Basic Function',
+        content: `
+          <h2>Task 9: Define a Function</h2>
+          <p class="note-text">Define a function called <code>greet</code> that prints <code>"Hello, welcome!"</code>. Call the function.</p>
+        `
+      },
+      {
+        type: 'task',
+        question: 'Define and call the greet function.',
+        expectedOutput: 'Hello, welcome!',
+        starterCode: '# Define your function below\n\n\n# Call your function below\n'
+      },
+      {
+        type: 'note',
+        title: 'Practical Task 10: Function with Parameters',
+        content: `
+          <h2>Task 10: Parameters</h2>
+          <p class="note-text">Define a function called <code>my_sum(a, b)</code> that returns the sum of a and b. Call it with 3 and 5, then print the result.</p>
+        `
+      },
+      {
+        type: 'task',
+        question: 'Define my_sum and print the result of my_sum(3, 5).',
+        expectedOutput: '8',
+        starterCode: '# Define my_sum below\n\n\n# Call and print below\n'
+      },
+      {
+        type: 'note',
+        title: 'Practical Task 11: The Return Statement',
+        content: `
+          <h2>Task 11: return</h2>
+          <p class="note-text">Define a function called <code>square(x)</code> that returns x multiplied by x. Print the result of <code>square(4)</code>.</p>
+        `
+      },
+      {
+        type: 'task',
+        question: 'Define square(x) and print square(4).',
+        expectedOutput: '16',
+        starterCode: '# Define square below\n\n\n# Print square(4) below\n'
+      },
+      {
+        type: 'note',
+        title: 'Practical Task 12: Calculate the Average',
+        content: `
+          <h2>Task 12: Average Calculation</h2>
+          <p class="note-text">Write a function called <code>average(a, b)</code> that calculates and returns the average of two numbers. Print the result of <code>average(10, 20)</code>.</p>
+          <p class="note-text"><em>Hint: Average = (a + b) / 2</em></p>
+        `
+      },
+      {
+        type: 'task',
+        question: 'Create an average function and print average(10, 20).',
+        expectedOutput: '15.0',
+        starterCode: '# Define average below\n\n\n# Print average(10, 20) below\n'
+      },
+      {
+        type: 'note',
+        title: 'Practical Task 13: Find the Maximum',
+        content: `
+          <h2>Task 13: Maximum Function</h2>
+          <p class="note-text">Write a function called <code>find_max(a, b)</code> that returns the larger of two numbers. Print the result of <code>find_max(10, 5)</code>.</p>
+        `
+      },
+      {
+        type: 'task',
+        question: 'Create find_max and print find_max(10, 5).',
+        expectedOutput: '10',
+        starterCode: '# Define find_max below\n\n\n# Print find_max(10, 5) below\n'
+      },
+      {
+        type: 'note',
+        title: 'Practical Task 14: Logical Operators',
+        content: `
+          <h2>Task 14: and / or</h2>
+          <p class="note-text">Write a program that checks if <code>age = 18</code> and <code>has_id = True</code>. If both are true, print <code>"Allowed"</code>. Otherwise, print <code>"Denied"</code>.</p>
+        `
+      },
+      {
+        type: 'task',
+        question: 'Write code to check age >= 18 and has_id.',
+        expectedOutput: 'Allowed',
+        starterCode: 'age = 18\nhas_id = True\n# Write your if statement below\n'
+      },
+      {
+        type: 'note',
+        title: 'Practical Task 15: FizzBuzz (Mini)',
+        content: `
+          <h2>Task 15: The Ultimate Test</h2>
+          <p class="note-text">Write a loop from 1 to 5. If the number is divisible by 3, print <code>"Fizz"</code>. Otherwise, print the number.</p>
+        `
+      },
+      {
+        type: 'task',
+        question: 'Write a loop that prints Fizz for 3, and the number for everything else.',
+        expectedOutput: '1\n2\nFizz\n4\n5',
+        starterCode: '# Write your loop below\n'
+      }
+    ];
+
+    let currentStepIndex = 0;
+    let totalQuestions = 0;
+    let correctAnswers = 0;
+    let hasChecked = false;
+    const stepState = {}; 
+
+    const startScreen = document.getElementById('startScreen');
+    const mainContent = document.getElementById('mainContent');
+    const appHeader = document.getElementById('appHeader');
+    const appFooter = document.getElementById('appFooter');
+    const contentArea = document.getElementById('contentArea');
+    const progressBar = document.getElementById('progressBar');
+    const scoreBadge = document.getElementById('scoreBadge');
+    const actionBtn = document.getElementById('actionBtn');
+    const prevBtn = document.getElementById('prevBtn');
+    const feedbackBox = document.getElementById('feedbackBox');
+    const resultsScreen = document.getElementById('resultsScreen');
+
+    totalQuestions = courseSteps.filter(s => s.type === 'mcq' || s.type === 'fill' || s.type === 'task').length;
+
+    function updateProgress() {
+      const percentage = Math.round((currentStepIndex / courseSteps.length) * 100);
+      progressBar.style.width = `${percentage}%`;
+      const scorePercentage = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0;
+      scoreBadge.textContent = `${scorePercentage}%`;
+    }
+
+    function renderStep() {
+      hasChecked = false;
+      feedbackBox.classList.remove('show', 'correct', 'wrong');
+      feedbackBox.textContent = '';
+      actionBtn.disabled = true;
+      actionBtn.classList.remove('active');
+      prevBtn.disabled = currentStepIndex === 0;
+
+      const step = courseSteps[currentStepIndex];
+      if (!step) {
+        showResults();
+        return;
+      }
+
+      let html = '';
+      if (step.type === 'note') {
+        html = step.content;
+        actionBtn.textContent = 'Continue';
+        actionBtn.disabled = false;
+        actionBtn.classList.add('active');
+      } 
+      else if (step.type === 'mcq') {
+        html = `<h2>Question</h2><p class="note-text">${step.question}</p><div class="quiz-container">`;
+        step.options.forEach((opt, i) => {
+          html += `<button class="option-btn" data-index="${i}">${opt}</button>`;
+        });
+        html += `</div>`;
+        actionBtn.textContent = 'Check Answer';
+      } 
+      else if (step.type === 'fill') {
+        html = `<h2>Fill in the Blank</h2><p class="note-text">${step.question}</p>
+                <input type="text" class="fill-input" id="fillInput" placeholder="Type your answer...">`;
+        actionBtn.textContent = 'Check Answer';
+      } 
+      else if (step.type === 'task') {
+        html = `<h2>Practical Task</h2>
+                <div class="task-prompt">${step.question}</div>
+                <textarea class="editor-area" id="taskEditor">${step.starterCode}</textarea>
+                <button class="action-btn active" id="runTaskBtn" style="margin-bottom: 16px;">▶ Run Code</button>
+                <div class="console-output" id="consoleOutput"></div>`;
+        actionBtn.textContent = 'Next Task';
+        actionBtn.disabled = false;
+        actionBtn.classList.add('active');
+      }
+
+      contentArea.innerHTML = html;
+      appFooter.style.display = 'flex';
+      
+      const savedState = stepState[currentStepIndex];
+      if (savedState) {
+        hasChecked = true;
+        if (savedState.isCorrect) correctAnswers = savedState.correctAnswers;
+        
+        if (step.type === 'mcq') {
+          document.querySelectorAll('.option-btn').forEach(b => b.classList.add('disabled'));
+          document.querySelector(`.option-btn[data-index="${savedState.selected}"]`).classList.add(savedState.isCorrect ? 'correct' : 'wrong');
+          if (!savedState.isCorrect) document.querySelector(`.option-btn[data-index="${step.correct}"]`).classList.add('correct');
+        } 
+        else if (step.type === 'fill') {
+          document.getElementById('fillInput').value = savedState.value;
+          document.getElementById('fillInput').disabled = true;
+        }
+        else if (step.type === 'task') {
+          document.getElementById('consoleOutput').textContent = savedState.output;
+          document.getElementById('consoleOutput').classList.add('show');
+          if (savedState.isCorrect) document.getElementById('consoleOutput').classList.add('success');
+          else document.getElementById('consoleOutput').classList.add('error');
+        }
+        
+        feedbackBox.textContent = savedState.explanation;
+        feedbackBox.classList.add('show', savedState.isCorrect ? 'correct' : 'wrong');
+        actionBtn.textContent = 'Next';
+        actionBtn.disabled = false;
+        actionBtn.classList.add('active');
+      } else {
+        if (step.type === 'mcq') {
+          document.querySelectorAll('.option-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+              if (hasChecked) return;
+              document.querySelectorAll('.option-btn').forEach(b => b.classList.add('disabled'));
+              const selected = parseInt(e.target.dataset.index);
+              if (selected === step.correct) {
+                e.target.classList.add('correct');
+              } else {
+                e.target.classList.add('wrong');
+                document.querySelector(`.option-btn[data-index="${step.correct}"]`).classList.add('correct');
+              }
+              checkAnswer(selected === step.correct, step.explanation, selected);
+            });
+          });
+        } 
+        else if (step.type === 'fill') {
+          document.getElementById('fillInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') actionBtn.click();
+          });
+        }
+        else if (step.type === 'task') {
+          document.getElementById('runTaskBtn').addEventListener('click', () => {
+            runTaskCode(step);
+          });
+        }
+      }
+
+      updateProgress();
+      mainContent.scrollTop = 0;
+    }
+
+    function checkAnswer(isCorrect, explanation, selected = null, customOutput = null) {
+      hasChecked = true;
+      if (isCorrect) correctAnswers++;
+      
+      stepState[currentStepIndex] = {
+        isCorrect: isCorrect,
+        correctAnswers: correctAnswers,
+        explanation: explanation,
+        selected: selected,
+        value: selected !== null ? null : (customOutput ? null : (document.getElementById('fillInput') ? document.getElementById('fillInput').value : null)),
+        output: customOutput
+      };
+      
+      feedbackBox.textContent = explanation;
+      feedbackBox.classList.add('show');
+      feedbackBox.classList.add(isCorrect ? 'correct' : 'wrong');
+      
+      actionBtn.disabled = false;
+      actionBtn.classList.add('active');
+      actionBtn.textContent = 'Next';
+      
+      updateProgress();
+    }
+
+    function runTaskCode(step) {
+      const editor = document.getElementById('taskEditor');
+      const outputDiv = document.getElementById('consoleOutput');
+      const code = editor.value;
+      
+      let outputBuffer = "";
+      let globalScope = {};
+      let functions = {};
+      let loopCount = 0;
+
+      function printToConsole(text) {
+        outputBuffer += text + "\n";
+      }
+
+      function evaluateExpression(expr, scope) {
+        expr = expr.trim();
+        if ((expr.startsWith('"') && expr.endsWith('"')) || (expr.startsWith("'") && expr.endsWith("'"))) return expr.slice(1, -1);
+        if (!isNaN(expr)) return Number(expr);
+        if (expr === 'True') return true;
+        if (expr === 'False') return false;
+        if (expr === 'None') return null;
+
+        const funcCallMatch = expr.match(/^([a-zA-Z_]\w*)\((.*)\)$/);
+        if (funcCallMatch) {
+          const funcName = funcCallMatch[1];
+          const argsString = funcCallMatch[2];
+          let args = [];
+          if (argsString.trim() !== '') {
+            let current = '', depth = 0, inString = false, quote = '';
+            for (let char of argsString) {
+              if (char === '"' || char === "'") {
+                if (inString && char === quote) inString = false;
+                else if (!inString) { inString = true; quote = char; }
+              } else if (!inString) {
+                if (char === '(') depth++;
+                else if (char === ')') depth--;
+                else if (char === ',' && depth === 0) { args.push(current.trim()); current = ''; continue; }
+              }
+              current += char;
+            }
+            args.push(current.trim());
+          }
+          const evaluatedArgs = args.map(a => evaluateExpression(a, scope));
+
+          if (funcName === 'print') {
+            printToConsole(evaluatedArgs.map(a => a === null ? 'None' : String(a)).join(' '));
+            return null;
+          }
+          if (funcName === 'range') {
+            if (evaluatedArgs.length === 1) return Array.from({length: evaluatedArgs[0]}, (_, i) => i);
+            if (evaluatedArgs.length === 2) {
+              let arr = [];
+              for (let i = evaluatedArgs[0]; i < evaluatedArgs[1]; i++) arr.push(i);
+              return arr;
+            }
+          }
+          if (functions[funcName]) {
+            return callFunction(funcName, evaluatedArgs);
+          }
+        }
+
+        try {
+          let jsExpr = expr
+            .replace(/\bTrue\b/g, 'true').replace(/\bFalse\b/g, 'false').replace(/\bNone\b/g, 'null')
+            .replace(/\band\b/g, '&&').replace(/\bor\b/g, '||').replace(/\bnot\b/g, '!')
+            .replace(/(?<![<>=!])==(?!=)/g, '===');
+          for (let key in scope) {
+            const regex = new RegExp(`\\b${key}\\b`, 'g');
+            let val = scope[key];
+            if (typeof val === 'string') val = JSON.stringify(val);
+            jsExpr = jsExpr.replace(regex, val);
+          }
+          return new Function(`return (${jsExpr})`)();
+        } catch (e) {
+          if (scope[expr] !== undefined) return scope[expr];
+          return expr;
+        }
+      }
+
+      function callFunction(name, args) {
+        const func = functions[name];
+        if (!func) return null;
+        const localScope = Object.create(globalScope);
+        func.params.forEach((param, i) => {
+          localScope[param] = args[i] !== undefined ? args[i] : null;
+        });
+        let returnValue = null;
+        const lines = func.body.split('\n');
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i];
+          if (line.trim().startsWith('return ')) {
+            returnValue = evaluateExpression(line.trim().substring(7), localScope);
+            break;
+          }
+          executeLine(line, i, lines, localScope, 0);
+        }
+        return returnValue;
+      }
+
+      function executeLine(line, index, lines, scope, indentLevel) {
+        const trimmed = line.trim();
+        if (trimmed === '' || trimmed.startsWith('#')) return index;
+        const currentIndent = line.length - line.trimStart().length;
+        if (currentIndent < indentLevel) return index;
+
+        const assignMatch = trimmed.match(/^([a-zA-Z_]\w*)\s*=\s*(.+)$/);
+        if (assignMatch && !trimmed.startsWith('if') && !trimmed.startsWith('while')) {
+          scope[assignMatch[1]] = evaluateExpression(assignMatch[2], scope);
+          return index;
+        }
+
+        if (trimmed.startsWith('def ')) {
+          const match = trimmed.match(/^def\s+([a-zA-Z_]\w*)\((.*)\):/);
+          if (match) {
+            const name = match[1];
+            const paramsStr = match[2];
+            let params = [];
+            if (paramsStr.trim() !== '') {
+              params = paramsStr.split(',').map(p => p.trim());
+            }
+            let bodyLines = [];
+            let j = index + 1;
+            while (j < lines.length) {
+              const nextLine = lines[j];
+              if (nextLine.trim() === '' || nextLine.length - nextLine.trimStart().length > currentIndent) {
+                bodyLines.push(nextLine); j++;
+              } else break;
+            }
+            functions[name] = { params, body: bodyLines.join('\n') };
+            return j - 1;
+          }
+        }
+
+        if (trimmed.startsWith('print(')) {
+          const inner = trimmed.substring(6, trimmed.length - 1);
+          const val = evaluateExpression(inner, scope);
+          printToConsole(val === null ? 'None' : String(val));
+          return index;
+        }
+
+        if (trimmed.startsWith('if ') && trimmed.endsWith(':')) {
+          const condition = trimmed.substring(3, trimmed.length - 1);
+          const result = evaluateExpression(condition, scope);
+          let j = index + 1;
+          let blockExecuted = false;
+          if (result) {
+            while (j < lines.length) {
+              const nextLine = lines[j];
+              if (nextLine.trim() === '' || nextLine.length - nextLine.trimStart().length > currentIndent) {
+                executeLine(nextLine, j, lines, scope, currentIndent + 1);
+                j++;
+              } else break;
+            }
+            blockExecuted = true;
+          } else {
+            while (j < lines.length) {
+              const nextLine = lines[j];
+              if (nextLine.trim() === '' || nextLine.length - nextLine.trimStart().length > currentIndent) j++;
+              else break;
+            }
+          }
+          while (j < lines.length) {
+            const nextLine = lines[j];
+            const nextTrimmed = nextLine.trim();
+            const nextIndent = nextLine.length - nextLine.trimStart().length;
+            if (nextIndent !== currentIndent) break;
+            if (nextTrimmed.startsWith('elif ') && nextTrimmed.endsWith(':')) {
+              const elifCond = nextTrimmed.substring(5, nextTrimmed.length - 1);
+              const elifResult = evaluateExpression(elifCond, scope);
+              let k = j + 1;
+              if (!blockExecuted && elifResult) {
+                while (k < lines.length) {
+                  const kLine = lines[k];
+                  if (kLine.trim() === '' || kLine.length - kLine.trimStart().length > currentIndent) {
+                    executeLine(kLine, k, lines, scope, currentIndent + 1);
+                    k++;
+                  } else break;
+                }
+                blockExecuted = true; j = k - 1;
+              } else {
+                while (k < lines.length) {
+                  const kLine = lines[k];
+                  if (kLine.trim() === '' || kLine.length - kLine.trimStart().length > currentIndent) k++;
+                  else break;
+                }
+                j = k - 1;
+              }
+            } else if (nextTrimmed === 'else:') {
+              let k = j + 1;
+              if (!blockExecuted) {
+                while (k < lines.length) {
+                  const kLine = lines[k];
+                  if (kLine.trim() === '' || kLine.length - kLine.trimStart().length > currentIndent) {
+                    executeLine(kLine, k, lines, scope, currentIndent + 1);
+                    k++;
+                  } else break;
+                }
+              } else {
+                while (k < lines.length) {
+                  const kLine = lines[k];
+                  if (kLine.trim() === '' || kLine.length - kLine.trimStart().length > currentIndent) k++;
+                  else break;
+                }
+              }
+              j = k - 1;
+              break;
+            } else break;
+            j++;
+          }
+          return j - 1;
+        }
+
+        if (trimmed.startsWith('for ') && trimmed.endsWith(':')) {
+          const match = trimmed.match(/^for\s+([a-zA-Z_]\w*)\s+in\s+(.+):/);
+          if (match) {
+            const varName = match[1];
+            const iterableExpr = match[2];
+            let iterable = evaluateExpression(iterableExpr, scope);
+            if (Array.isArray(iterable)) {
+              const bodyStart = index + 1;
+              let bodyEnd = bodyStart;
+              while (bodyEnd < lines.length) {
+                const nextLine = lines[bodyEnd];
+                if (nextLine.trim() === '' || nextLine.length - nextLine.trimStart().length > currentIndent) bodyEnd++;
+                else break;
+              }
+              for (let item of iterable) {
+                scope[varName] = item;
+                for (let j = bodyStart; j < bodyEnd; j++) {
+                  executeLine(lines[j], j, lines, scope, currentIndent + 1);
+                  loopCount++;
+                  if (loopCount > 1000) throw new Error("Infinite loop");
+                }
+              }
+              return bodyEnd - 1;
+            }
+          }
+        }
+
+        if (trimmed.startsWith('while ') && trimmed.endsWith(':')) {
+          const condition = trimmed.substring(6, trimmed.length - 1);
+          const bodyStart = index + 1;
+          let bodyEnd = bodyStart;
+          while (bodyEnd < lines.length) {
+            const nextLine = lines[bodyEnd];
+            if (nextLine.trim() === '' || nextLine.length - nextLine.trimStart().length > currentIndent) bodyEnd++;
+            else break;
+          }
+          while (evaluateExpression(condition, scope)) {
+            for (let j = bodyStart; j < bodyEnd; j++) {
+              executeLine(lines[j], j, lines, scope, currentIndent + 1);
+              loopCount++;
+              if (loopCount > 10000) throw new Error("Infinite loop");
+            }
+          }
+          return bodyEnd - 1;
+        }
+        return index;
+      }
+
+      try {
+        const lines = code.split('\n');
+        for (let i = 0; i < lines.length; i++) {
+          executeLine(lines[i], i, lines, globalScope, 0);
+        }
+      } catch (err) {
+        outputBuffer += "\n❌ Error: " + err.message;
+      }
+
+      const finalOutput = outputBuffer.trim();
+      outputDiv.textContent = finalOutput || "(No output)";
+      outputDiv.classList.add('show');
+
+      if (finalOutput === step.expectedOutput) {
+        outputDiv.classList.remove('error');
+        outputDiv.classList.add('success');
+        outputDiv.textContent += "\n\n✅ Task Passed!";
+        if (!hasChecked) {
+          hasChecked = true;
+          correctAnswers++;
+          updateProgress();
+          feedbackBox.textContent = "Excellent! Your code produced the correct output.";
+          feedbackBox.classList.add('show', 'correct');
+          stepState[currentStepIndex] = {
+            isCorrect: true,
+            correctAnswers: correctAnswers,
+            explanation: feedbackBox.textContent,
+            selected: null,
+            output: outputDiv.textContent
+          };
+        }
+      } else {
+        outputDiv.classList.remove('success');
+        outputDiv.classList.add('error');
+        outputDiv.textContent += `\n\n❌ Expected Output:\n${step.expectedOutput}`;
+        stepState[currentStepIndex] = {
+          isCorrect: false,
+          correctAnswers: correctAnswers,
+          explanation: "Task incomplete. Check the output and try again.",
+          selected: null,
+          output: outputDiv.textContent
+        };
+      }
+    }
+
+    document.getElementById('startBtn').addEventListener('click', () => {
+      startScreen.classList.remove('active');
+      appHeader.classList.remove('hidden');
+      mainContent.classList.remove('hidden');
+      appFooter.classList.remove('hidden');
+      currentStepIndex = 0;
+      correctAnswers = 0;
+      renderStep();
+    });
+
+    actionBtn.addEventListener('click', () => {
+      const step = courseSteps[currentStepIndex];
+      
+      if (step.type === 'note' || step.type === 'task') {
+        
+      } else if (step.type === 'mcq' || step.type === 'fill') {
+        if (!hasChecked) {
+          if (step.type === 'fill') {
+            const input = document.getElementById('fillInput');
+            const val = input.value.trim().toLowerCase();
+            const isCorrect = step.correctAnswers.some(a => a.toLowerCase() === val);
+            input.disabled = true;
+            checkAnswer(isCorrect, step.explanation + (isCorrect ? '' : ` (Correct answer: ${step.correctAnswers[0]})`), null, input.value);
+          }
+          return;
+        }
+      }
+
+      currentStepIndex++;
+      if (currentStepIndex < courseSteps.length) {
+        renderStep();
+      } else {
+        showResults();
+      }
+    });
+
+    prevBtn.addEventListener('click', () => {
+      if (currentStepIndex > 0) {
+        currentStepIndex--;
+        renderStep();
+      }
+    });
+
+    function showResults() {
+      mainContent.classList.add('hidden');
+      appFooter.classList.add('hidden');
+      appHeader.classList.add('hidden');
+      resultsScreen.classList.add('active');
+      
+      const finalPercentage = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0;
+      document.getElementById('finalScoreText').textContent = `${finalPercentage}%`;
+      
+      let msg = "Great job!";
+      if (finalPercentage >= 90) msg = "Outstanding! You are a Python master!";
+      else if (finalPercentage >= 70) msg = "Well done! Keep practicing.";
+      else if (finalPercentage >= 50) msg = "Good effort! Review the notes and try again.";
+      else msg = "Don't worry, practice makes perfect. Try again!";
+      document.getElementById('resultsMessage').textContent = msg;
+    }
+
+    document.getElementById('restartBtn').addEventListener('click', () => {
+      resultsScreen.classList.remove('active');
+      startScreen.classList.add('active');
+      progressBar.style.width = '0%';
+      scoreBadge.textContent = '0%';
+      currentStepIndex = 0;
+      correctAnswers = 0;
+      hasChecked = false;
+      for (let key in stepState) delete stepState[key];
+    });
+
+    document.getElementById('closeBtn').addEventListener('click', () => {
+      if (confirm("Are you sure you want to exit? Your progress will be lost.")) {
+        location.reload();
+      }
+    });
+
+    const askMikeyBtn = document.getElementById('askMikeyBtn');
+    const chatOverlay = document.getElementById('chatOverlay');
+    const chatClose = document.getElementById('chatClose');
+    const chatMessages = document.getElementById('chatMessages');
+    const chatInput = document.getElementById('chatInput');
+    const chatSend = document.getElementById('chatSend');
+
+    function addMessage(text, sender) {
+      const div = document.createElement('div');
+      div.className = `chat-message ${sender}`;
+      div.textContent = text;
+      chatMessages.appendChild(div);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+      return div;
+    }
+
+    async function askMikey(question) {
+      if (!question.trim()) return;
+      
+      addMessage(question, 'user');
+      chatInput.value = '';
+
+      const typingDiv = addMessage("Mikey is thinking...", 'typing');
+
+      try {
+        const response = await fetch('/api/mikey', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ question: question })
+        });
+
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        const data = await response.json();
+        const reply = data.reply;
+        
+        typingDiv.remove();
+        addMessage(reply, 'mikey');
+
+      } catch (error) {
+        typingDiv.remove();
+        addMessage("Oops, I couldn't connect to my brain. Check your connection.", 'mikey');
+      }
+    }
+
+    askMikeyBtn.addEventListener('click', () => {
+      chatOverlay.classList.add('active');
+      chatInput.focus();
+    });
+
+    chatClose.addEventListener('click', () => {
+      chatOverlay.classList.remove('active');
+    });
+
+    chatSend.addEventListener('click', () => {
+      askMikey(chatInput.value);
+    });
+
+    chatInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        askMikey(chatInput.value);
+      }
+    });
+
+    chatOverlay.addEventListener('click', (e) => {
+      if (e.target === chatOverlay) {
+        chatOverlay.classList.remove('active');
+      }
+    });
+
+  </script>
+</body>
+</html>
