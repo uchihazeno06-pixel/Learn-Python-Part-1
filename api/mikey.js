@@ -3,9 +3,9 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { question } = req.body;
-  if (!question) {
-    return res.status(400).json({ error: 'Question is required' });
+  const { messages } = req.body;
+  if (!messages || !Array.isArray(messages)) {
+    return res.status(400).json({ error: 'Messages array is required' });
   }
 
   const GROQ_API_KEY = process.env.GROQ_API_KEY;
@@ -25,6 +25,12 @@ print("Hello")
 4. Never provide code as a single continuous line. Always use proper indentation and line breaks inside the code block.`;
 
   try {
+    // Prepend the system prompt to the conversation history
+    const apiMessages = [
+      { role: "system", content: systemPrompt },
+      ...messages
+    ];
+
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: 'POST',
       headers: {
@@ -33,10 +39,7 @@ print("Hello")
       },
       body: JSON.stringify({
         model: "openai/gpt-oss-120b",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: question }
-        ],
+        messages: apiMessages,
         temperature: 0.5,
         max_tokens: 350
       })
