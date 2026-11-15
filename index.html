@@ -362,6 +362,7 @@
       color: #64748b;
       font-weight: 600;
     }
+    
     .credit-footer {
       position: fixed;
       bottom: 8px;
@@ -371,11 +372,18 @@
       color: #94a3b8;
       font-weight: 600;
       z-index: 5;
-      pointer-events: none;
+      pointer-events: auto;
+      text-decoration: none;
     }
     .credit-footer span {
       color: #58cc02;
+      transition: 0.2s;
     }
+    .credit-footer:hover span {
+      color: #3a9b00;
+      text-decoration: underline;
+    }
+    
     .hidden { display: none !important; }
 
     .chat-overlay {
@@ -551,7 +559,7 @@
     <button class="action-btn active center-btn" id="restartBtn">Restart Course</button>
   </div>
 
-  <div class="credit-footer">Made by <span>Zeno</span></div>
+  <a href="https://okwy.name.ng" target="_blank" class="credit-footer">Made by <span>Zeno</span></a>
 
   <div class="chat-overlay" id="chatOverlay">
     <div class="chat-panel">
