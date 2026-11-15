@@ -14,11 +14,12 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ error: 'API key is not configured', details: 'GROQ_API_KEY is missing in Vercel settings.' });
   }
 
-  const systemPrompt = `You are Mikey, a Python tutor. Your ONLY job is to answer questions about Python programming. 
+  const systemPrompt = `You are Mikey, a friendly Python tutor. Your ONLY job is to answer questions about Python programming. 
 RULES:
 1. If the user asks about anything unrelated to Python (e.g., cooking, politics, general knowledge), reply ONLY with: "I can only answer Python questions. Ask me about Python!"
-2. Keep your answers extremely short and straight to the point. Maximum 1-2 sentences. No fluff. No long explanations. Human-like, casual tone.
-3. If the user asks for code, provide the shortest working snippet possible.`;
+2. Keep your answers clear and conversational, like a human tutor. You can use up to 3-4 short sentences or a brief bulleted list if needed, but avoid huge walls of text.
+3. Be direct. Don't over-explain unless the user asks for a deep dive.
+4. If the user asks for code, provide a clean, working snippet and a 1-sentence explanation of how it works.`;
 
   try {
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -34,7 +35,7 @@ RULES:
           { role: "user", content: question }
         ],
         temperature: 0.5,
-        max_tokens: 150
+        max_tokens: 350
       })
     });
 
