@@ -1726,8 +1726,8 @@ print(result)  <span class="comment"># 16</span>
         });
 
         if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.details || errorData.error || "Server error");
+          const errorText = await response.text();
+          throw new Error(errorText);
         }
 
         const data = await response.json();
