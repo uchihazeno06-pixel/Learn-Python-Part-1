@@ -1,4 +1,4 @@
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -11,7 +11,7 @@ export default async function handler(req, res) {
   const GROQ_API_KEY = process.env.GROQ_API_KEY;
 
   if (!GROQ_API_KEY) {
-    return res.status(500).json({ error: 'API key is not configured' });
+    return res.status(500).json({ error: 'API key is not configured', details: 'GROQ_API_KEY is missing in Vercel settings.' });
   }
 
   const systemPrompt = `You are Mikey, a Python tutor. Your ONLY job is to answer questions about Python programming. 
@@ -28,7 +28,7 @@ RULES:
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: "llama3-8b-8192",
+        model: "llama-3.1-8b-instant",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: question }
@@ -40,7 +40,9 @@ RULES:
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Groq API error: ${response.status} - ${errorText}`);
+      console.error("Groq Error Status:", response.status);
+      console.error("Groq Error Details:", errorText);
+      throw new Error(`Groq API returned ${response.status}: ${errorText}`);
     }
 
     const data = await response.json();
@@ -49,7 +51,10 @@ RULES:
     return res.status(200).json({ reply: reply });
 
   } catch (error) {
-    console.error("Groq API Error:", error);
-    return res.status(500).json({ error: 'Failed to get response from Mikey', details: error.message });
+    console.error("Mikey Catch Error:", error.message);
+    return res.status(500).json({ 
+      error: 'Failed to get response from Mikey', 
+      details: error.message 
+    });
   }
-}
+};
