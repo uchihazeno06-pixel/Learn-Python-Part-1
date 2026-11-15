@@ -27,7 +27,7 @@
       border-bottom: 2px solid #f1f5f9;
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 8px;
       z-index: 10;
     }
     .close-btn {
@@ -68,19 +68,40 @@
       flex-shrink: 0;
     }
     
+    .header-btn {
+      background: #f1f5f9;
+      color: #334155;
+      border: none;
+      border-radius: 20px;
+      padding: 8px 12px;
+      font-size: 0.85rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: 0.1s;
+      flex-shrink: 0;
+      box-shadow: 0 2px 0 #cbd5e1;
+    }
+    .header-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 0 0 #cbd5e1;
+    }
+    
     .ask-mikey-btn {
       background: #7c3aed;
       color: white;
       border: none;
       border-radius: 20px;
-      padding: 8px 14px;
+      padding: 8px 12px;
       font-size: 0.85rem;
       font-weight: 800;
       cursor: pointer;
       box-shadow: 0 3px 0 #5b21b6;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
       transition: 0.1s;
       flex-shrink: 0;
     }
@@ -116,6 +137,30 @@
     .note-text li {
       margin-bottom: 8px;
     }
+    
+    .callout {
+      padding: 16px 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      font-size: 1.05rem;
+      line-height: 1.6;
+    }
+    .callout.info {
+      background: #e0f2fe;
+      border-left: 6px solid #0ea5e9;
+      color: #075985;
+    }
+    .callout.warning {
+      background: #fee2e2;
+      border-left: 6px solid #ef4444;
+      color: #991b1b;
+    }
+    .callout.tip {
+      background: #fef9c3;
+      border-left: 6px solid #eab308;
+      color: #854d0e;
+    }
+
     .code-snippet {
       background: #1e1e2f;
       color: #e2e8f0;
@@ -394,6 +439,63 @@
     
     .hidden { display: none !important; }
 
+    /* NOTES MODAL STYLES */
+    .notes-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      height: 100dvh;
+      background: #ffffff;
+      z-index: 300;
+      display: none;
+      flex-direction: column;
+    }
+    .notes-overlay.active {
+      display: flex;
+    }
+    .notes-header {
+      background: #f8fafc;
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #e2e8f0;
+      flex-shrink: 0;
+    }
+    .notes-header h3 {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .notes-close {
+      background: #e2e8f0;
+      border: none;
+      color: #64748b;
+      font-size: 1.2rem;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    .notes-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 20px 80px 20px;
+    }
+    .notes-content h4 {
+      font-size: 1.3rem;
+      color: #58cc02;
+      margin-top: 30px;
+      margin-bottom: 12px;
+      border-bottom: 2px solid #f1f5f9;
+      padding-bottom: 8px;
+    }
+    .notes-content h4:first-child {
+      margin-top: 0;
+    }
+
     .chat-overlay {
       position: fixed;
       top: 0;
@@ -533,7 +635,8 @@
       <div class="progress-bar" id="progressBar"></div>
     </div>
     <div class="score-badge" id="scoreBadge">0%</div>
-    <button class="ask-mikey-btn" id="askMikeyBtn">🤖 Ask Mikey</button>
+    <button class="header-btn" id="notesBtn">📖 Notes</button>
+    <button class="ask-mikey-btn" id="askMikeyBtn">🤖 Mikey</button>
   </header>
 
   <div class="screen active" id="startScreen">
@@ -541,7 +644,10 @@
     <h1>Python Mastery</h1>
     <p>Conditionals, Loops & Functions</p>
     <button class="action-btn active center-btn" id="startBtn">Start Learning</button>
-    <button class="ask-mikey-btn" id="askMikeyBtnStart" style="margin-top: 20px; padding: 16px 24px; font-size: 1.1rem;">🤖 Ask Mikey</button>
+    <div style="display: flex; gap: 10px; margin-top: 20px;">
+      <button class="header-btn" id="notesBtnStart" style="padding: 16px 24px; font-size: 1.1rem;">📖 Notes</button>
+      <button class="ask-mikey-btn" id="askMikeyBtnStart" style="padding: 16px 24px; font-size: 1.1rem;">🤖 Mikey</button>
+    </div>
   </div>
 
   <main class="main-content hidden" id="mainContent">
@@ -569,6 +675,97 @@
 
   <a href="https://okwy.name.ng" target="_blank" class="credit-footer">Made by <span>Zeno</span></a>
 
+  <!-- NOTES MODAL -->
+  <div class="notes-overlay" id="notesOverlay">
+    <div class="notes-header">
+      <h3>📖 Python Cheat Sheet</h3>
+      <button class="notes-close" id="notesClose">✕</button>
+    </div>
+    <div class="notes-content">
+      <h4>1. Conditional Statements</h4>
+      <p class="note-text"><strong>If:</strong> Runs code only if a condition is True.</p>
+      <div class="code-snippet">
+<span class="kw">if</span> x > <span class="num">0</span>:
+    print(<span class="str">"Positive"</span>)
+      </div>
+      
+      <p class="note-text"><strong>If-Else:</strong> Provides a "Plan B" if the condition is False.</p>
+      <div class="code-snippet">
+<span class="kw">if</span> x % <span class="num">2</span> == <span class="num">0</span>:
+    print(<span class="str">"Even"</span>)
+<span class="kw">else</span>:
+    print(<span class="str">"Odd"</span>)
+      </div>
+
+      <p class="note-text"><strong>If-Elif-Else:</strong> Checks multiple conditions in order.</p>
+      <div class="code-snippet">
+<span class="kw">if</span> score >= <span class="num">90</span>:
+    print(<span class="str">"A"</span>)
+<span class="kw">elif</span> score >= <span class="num">80</span>:
+    print(<span class="str">"B"</span>)
+<span class="kw">else</span>:
+    print(<span class="str">"F"</span>)
+      </div>
+
+      <h4>2. Logical Operators</h4>
+      <p class="note-text"><strong>and:</strong> True only if BOTH are True.<br><strong>or:</strong> True if AT LEAST ONE is True.<br><strong>not:</strong> Reverses the boolean.</p>
+      <div class="code-snippet">
+<span class="kw">if</span> age >= <span class="num">18</span> <span class="kw">and</span> has_id:
+    print(<span class="str">"Allowed"</span>)
+      </div>
+
+      <h4>3. For Loops</h4>
+      <p class="note-text">Iterates over a sequence (lists, strings, ranges).</p>
+      <div class="code-snippet">
+<span class="kw">for</span> fruit <span class="kw">in</span> [<span class="str">"apple"</span>, <span class="str">"banana"</span>]:
+    print(fruit)
+      </div>
+      <p class="note-text"><strong>range():</strong> Generates numbers. <code>range(5)</code> gives 0-4. <code>range(1, 5)</code> gives 1-4.</p>
+      <div class="code-snippet">
+<span class="kw">for</span> i <span class="kw">in</span> range(<span class="num">5</span>):
+    print(i)
+      </div>
+
+      <h4>4. While Loops</h4>
+      <p class="note-text">Repeats as long as a condition remains True.</p>
+      <div class="code-snippet">
+count = <span class="num">3</span>
+<span class="kw">while</span> count > <span class="num">0</span>:
+    print(count)
+    count -= <span class="num">1</span>
+      </div>
+
+      <h4>5. Loop Control</h4>
+      <p class="note-text"><strong>break:</strong> Exits the loop entirely.<br><strong>continue:</strong> Skips the current iteration.<br><strong>pass:</strong> Does nothing.</p>
+      <div class="code-snippet">
+<span class="kw">for</span> i <span class="kw">in</span> range(<span class="num">5</span>):
+    <span class="kw">if</span> i == <span class="num">3</span>:
+        <span class="kw">break</span> <span class="comment"># Stops the loop</span>
+      </div>
+
+      <h4>6. Functions</h4>
+      <p class="note-text">Reusable blocks of code. Defined with <code>def</code>.</p>
+      <div class="code-snippet">
+<span class="kw">def</span> <span class="fn">greet</span>():
+    print(<span class="str">"Hello!"</span>)
+
+greet() <span class="comment"># Calls the function</span>
+      </div>
+      <p class="note-text"><strong>Parameters & Arguments:</strong> Pass data into functions.</p>
+      <div class="code-snippet">
+<span class="kw">def</span> <span class="fn">my_sum</span>(a, b):
+    <span class="kw">return</span> a + b
+
+result = my_sum(<span class="num">3</span>, <span class="num">5</span>)
+      </div>
+      <p class="note-text"><strong>Return:</strong> Sends data back from the function.</p>
+      <div class="code-snippet">
+<span class="kw">def</span> <span class="fn">square</span>(x):
+    <span class="kw">return</span> x * x
+      </div>
+    </div>
+  </div>
+
   <div class="chat-overlay" id="chatOverlay">
     <div class="chat-panel">
       <div class="chat-header">
@@ -587,23 +784,47 @@
 
   <script>
     const courseSteps = [
+      // --- CHAPTER 1: IF STATEMENTS ---
       {
         type: 'note',
-        title: 'Introduction to Conditionals',
+        title: 'What is an If Statement?',
         content: `
-          <h2>Control the Flow</h2>
-          <p class="note-text">Conditional statements are the decision-makers of your code. They execute different blocks of code based on whether a specific condition is <strong>True</strong> or <strong>False</strong>.</p>
-          <p class="note-text">The <code>if</code> statement executes a block of code <strong>only if the condition is True</strong>. In Python, indentation (spacing) is crucial—it defines what code belongs inside the <code>if</code> block.</p>
+          <h2>Making Decisions</h2>
+          <p class="note-text">Conditional statements are the decision-makers of your code. They allow your program to execute different blocks of code based on whether a specific condition is <strong>True</strong> or <strong>False</strong>.</p>
+          <div class="callout info">
+            <strong>Think of it like this:</strong> <em>IF</em> you are hungry, eat a snack. If the condition (being hungry) is True, the action (eating) happens. If it is False, nothing happens.
+          </div>
+          <p class="note-text">The <code>if</code> statement is the most basic conditional. It executes a block of code <strong>only if the condition evaluates to True</strong>.</p>
+        `
+      },
+      {
+        type: 'note',
+        title: 'The Syntax of If',
+        content: `
+          <h2>How to write it</h2>
+          <p class="note-text">In Python, you write <code>if</code>, followed by the condition, and then a colon <code>:</code>. The code that should run must be indented on the next line.</p>
           <div class="code-snippet">
-<span class="comment"># Basic syntax of an if statement</span>
+<span class="comment"># Basic syntax</span>
 <span class="kw">if</span> condition:
     <span class="comment"># Code to run if True (must be indented)</span>
-
-<span class="comment"># Example: Check if a number is positive</span>
+          </div>
+          <div class="callout warning">
+            <strong>Warning:</strong> Python relies on indentation (spaces or tabs) to define blocks of code. If you don't indent, Python will throw an error!
+          </div>
+        `
+      },
+      {
+        type: 'note',
+        title: 'If Example',
+        content: `
+          <h2>Let's see it in action</h2>
+          <p class="note-text">Imagine you want to check if a number is positive.</p>
+          <div class="code-snippet">
 number = <span class="num">10</span>
 <span class="kw">if</span> number > <span class="num">0</span>:
     print(<span class="str">"The number is positive."</span>)
           </div>
+          <p class="note-text">Python checks: Is 10 greater than 0? Yes (True). So it prints the message.</p>
         `
       },
       {
@@ -615,23 +836,47 @@ number = <span class="num">10</span>
       },
       {
         type: 'note',
-        title: 'If-Else Statements',
+        title: 'What if it is False?',
         content: `
-          <h2>What if it is False?</h2>
-          <p class="note-text">The <code>if-else</code> statement provides an alternative block of code to run when the <code>if</code> condition is <strong>False</strong>. This ensures exactly one of the two blocks will execute.</p>
+          <h2>The Else Statement</h2>
+          <p class="note-text">What happens when the condition is False? If you don't tell Python what to do, it just skips the code. But usually, you want a "Plan B".</p>
+          <p class="note-text">The <code>else</code> statement acts as a safety net. If the <code>if</code> condition fails, the <code>else</code> block runs instead. This ensures exactly one of the two blocks will execute.</p>
+          <div class="callout info">
+            <strong>Think of it like this:</strong> <em>IF</em> it is raining, bring an umbrella. <em>ELSE</em>, wear sunglasses.
+          </div>
+        `
+      },
+      {
+        type: 'note',
+        title: 'If-Else Syntax',
+        content: `
+          <h2>How to write it</h2>
+          <p class="note-text">You write <code>else:</code> directly below your <code>if</code> block, aligned with the <code>if</code> keyword. </p>
+          <div class="callout warning">
+            <strong>Important:</strong> <code>else</code> does <strong>not</strong> take a condition. It is the catch-all. You don't write <code>else condition:</code>; you just write <code>else:</code>.
+          </div>
           <div class="code-snippet">
 <span class="kw">if</span> condition:
     <span class="comment"># Code runs if True</span>
 <span class="kw">else</span>:
     <span class="comment"># Code runs if False</span>
-
-<span class="comment"># Example: Check if a number is even or odd</span>
+          </div>
+        `
+      },
+      {
+        type: 'note',
+        title: 'If-Else Example',
+        content: `
+          <h2>Let's see it in action</h2>
+          <p class="note-text">Let's check if a number is even or odd.</p>
+          <div class="code-snippet">
 num = <span class="num">7</span>
 <span class="kw">if</span> num % <span class="num">2</span> == <span class="num">0</span>:
     print(<span class="str">"The number is even."</span>)
 <span class="kw">else</span>:
     print(<span class="str">"The number is odd."</span>)
           </div>
+          <p class="note-text">Python checks: Is 7 % 2 == 0? No (False). So it skips the <code>if</code> and jumps straight to the <code>else</code>, printing "The number is odd."</p>
         `
       },
       {
@@ -643,10 +888,19 @@ num = <span class="num">7</span>
       },
       {
         type: 'note',
-        title: 'If-Elif-Else',
+        title: 'Multiple Conditions',
         content: `
-          <h2>Multiple Conditions</h2>
-          <p class="note-text">When you have more than two possibilities, use <code>elif</code> (else if). The <code>if-elif-else</code> statement checks <strong>multiple conditions in order</strong>. The first condition that evaluates to True runs, and the rest are skipped. If none are True, the <code>else</code> block runs.</p>
+          <h2>The Elif Statement</h2>
+          <p class="note-text">When you have more than two possibilities, use <code>elif</code> (short for "else if"). </p>
+          <p class="note-text">The <code>if-elif-else</code> statement checks <strong>multiple conditions in order</strong>. The first condition that evaluates to True runs, and the rest are skipped. If none are True, the <code>else</code> block runs.</p>
+        `
+      },
+      {
+        type: 'note',
+        title: 'If-Elif-Else Syntax',
+        content: `
+          <h2>How to write it</h2>
+          <p class="note-text">You can have as many <code>elif</code> blocks as you want. The <code>else</code> block is optional but acts as a final fallback.</p>
           <div class="code-snippet">
 <span class="kw">if</span> condition1:
     <span class="comment"># Code for condition1</span>
@@ -654,8 +908,16 @@ num = <span class="num">7</span>
     <span class="comment"># Code for condition2</span>
 <span class="kw">else</span>:
     <span class="comment"># Code if all are False</span>
-
-<span class="comment"># Example: Grading system</span>
+          </div>
+        `
+      },
+      {
+        type: 'note',
+        title: 'Grading System Example',
+        content: `
+          <h2>Let's see it in action</h2>
+          <p class="note-text">Let's assign a grade based on a score.</p>
+          <div class="code-snippet">
 score = <span class="num">85</span>
 <span class="kw">if</span> score >= <span class="num">90</span>:
     print(<span class="str">"Grade: A"</span>)
@@ -664,6 +926,7 @@ score = <span class="num">85</span>
 <span class="kw">else</span>:
     print(<span class="str">"Grade: F"</span>)
           </div>
+          <p class="note-text">Python checks the first condition: Is 85 >= 90? No. It moves to the <code>elif</code>: Is 85 >= 80? Yes! It prints "Grade: B" and skips the rest.</p>
         `
       },
       {
@@ -679,20 +942,18 @@ score = <span class="num">85</span>
         correctAnswers: ['elif'],
         explanation: 'elif stands for "else if". It checks another condition only if the previous ones were False.'
       },
+      
+      // --- CHAPTER 2: NESTED IFS & LOGICAL OPERATORS ---
       {
         type: 'note',
-        title: 'Nested Ifs & Logical Operators',
+        title: 'Nested Ifs',
         content: `
-          <h2>Complex Logic</h2>
+          <h2>Ifs inside Ifs</h2>
           <p class="note-text">You can place <code>if</code> statements inside other <code>if</code> statements. This is called nesting. The inner <code>if</code> only runs if the outer condition is True.</p>
-          <p class="note-text">You can also combine conditions using logical operators:</p>
-          <ul class="note-text">
-            <li><strong>and</strong>: True only if BOTH are True.</li>
-            <li><strong>or</strong>: True if AT LEAST ONE is True.</li>
-            <li><strong>not</strong>: Reverses the boolean value.</li>
-          </ul>
+          <div class="callout info">
+            <strong>Think of it like a double-check:</strong> First, check if you have a ticket. If you do, check if you are over 18. You only check the age <em>after</em> you confirm they have a ticket.
+          </div>
           <div class="code-snippet">
-<span class="comment"># Nested If</span>
 age = <span class="num">65</span>
 is_member = <span class="kw">True</span>
 <span class="kw">if</span> age >= <span class="num">60</span>:
@@ -700,10 +961,6 @@ is_member = <span class="kw">True</span>
         print(<span class="str">"30% discount"</span>)
     <span class="kw">else</span>:
         print(<span class="str">"20% discount"</span>)
-
-<span class="comment"># Logical Operators</span>
-<span class="kw">if</span> age >= <span class="num">18</span> <span class="kw">and</span> born_again:
-    print(<span class="str">"Welcome!"</span>)
           </div>
         `
       },
@@ -713,6 +970,25 @@ is_member = <span class="kw">True</span>
         options: ['30% discount', '20% discount', 'No output', 'Error'],
         correct: 0,
         explanation: 'age >= 60 is True, so we check the inner if. is_member is True, so the 30% message prints.'
+      },
+      {
+        type: 'note',
+        title: 'Logical Operators (And / Or / Not)',
+        content: `
+          <h2>Combining Conditions</h2>
+          <p class="note-text">You can combine multiple conditions into a single expression using logical operators:</p>
+          <ul class="note-text">
+            <li><strong>and</strong>: True only if BOTH sides are True.</li>
+            <li><strong>or</strong>: True if AT LEAST ONE side is True.</li>
+            <li><strong>not</strong>: Reverses the boolean value (True becomes False).</li>
+          </ul>
+          <div class="code-snippet">
+age = <span class="num">18</span>
+born_again = <span class="kw">True</span>
+<span class="kw">if</span> age >= <span class="num">18</span> <span class="kw">and</span> born_again:
+    print(<span class="str">"Welcome!"</span>)
+          </div>
+        `
       },
       {
         type: 'mcq',
@@ -727,14 +1003,27 @@ is_member = <span class="kw">True</span>
         correctAnswers: ['not'],
         explanation: 'not True becomes False, and not False becomes True.'
       },
+
+      // --- CHAPTER 3: FOR LOOPS ---
       {
         type: 'note',
-        title: 'For Loops',
+        title: 'What is a For Loop?',
         content: `
           <h2>Repeating Code</h2>
-          <p class="note-text">Loops repeat blocks of code. A <code>for</code> loop iterates over items in a sequence (like a list, string, or range). It is used when you know how many times you want to loop.</p>
+          <p class="note-text">Loops are used to repeat blocks of code. Imagine you had to print "Hello" 100 times. You wouldn't write <code>print("Hello")</code> 100 times. You would use a loop.</p>
+          <p class="note-text">A <code>for</code> loop iterates over items in a sequence (like a list, string, or range). It is used when you know how many times you want to loop.</p>
+          <div class="callout info">
+            <strong>Analogy:</strong> Think of a <code>for</code> loop like checking every item on a grocery list. You go through the list one by one until you reach the end.
+          </div>
+        `
+      },
+      {
+        type: 'note',
+        title: 'For Loop Syntax',
+        content: `
+          <h2>How to write it</h2>
+          <p class="note-text">The syntax reads almost like English: "For each item in the sequence, do this."</p>
           <div class="code-snippet">
-<span class="comment"># Syntax</span>
 <span class="kw">for</span> variable <span class="kw">in</span> sequence:
     <span class="comment"># Code to execute for each item</span>
 
@@ -757,7 +1046,7 @@ fruits = [<span class="str">"apple"</span>, <span class="str">"banana"</span>, <
         title: 'The range() Function',
         content: `
           <h2>Looping a Specific Number of Times</h2>
-          <p class="note-text">The <code>range()</code> function generates a sequence of numbers. This is perfect for looping a specific number of times.</p>
+          <p class="note-text">What if you don't have a list, but you just want to run a loop 5 times? You use the <code>range()</code> function.</p>
           <ul class="note-text">
             <li><code>range(5)</code> generates 0, 1, 2, 3, 4.</li>
             <li><code>range(1, 6)</code> generates 1, 2, 3, 4, 5 (stops before the second number).</li>
@@ -788,13 +1077,27 @@ fruits = [<span class="str">"apple"</span>, <span class="str">"banana"</span>, <
         correct: 1,
         explanation: 'range(start, stop) includes start but excludes stop. So it generates 1, 2, 3, 4.'
       },
+
+      // --- CHAPTER 4: WHILE LOOPS & CONTROL ---
       {
         type: 'note',
         title: 'While Loops',
         content: `
           <h2>Loop Until a Condition Changes</h2>
           <p class="note-text">A <code>while</code> loop continues executing as long as a condition remains <strong>True</strong>. It is used when you don't know the exact number of iterations in advance.</p>
-          <p class="note-text"><em>Warning: If the condition never becomes False, you will create an infinite loop!</em></p>
+          <div class="callout info">
+            <strong>Analogy:</strong> Think of a <code>while</code> loop like driving a car. <em>WHILE</em> the tank is not empty, keep driving. You don't know exactly how many miles that will be, but you know the condition to stop.
+          </div>
+          <div class="callout warning">
+            <strong>Warning:</strong> If the condition never becomes False, you will create an infinite loop! Your program will crash.
+          </div>
+        `
+      },
+      {
+        type: 'note',
+        title: 'While Loop Syntax',
+        content: `
+          <h2>How to write it</h2>
           <div class="code-snippet">
 <span class="kw">while</span> condition:
     <span class="comment"># Code to execute while True</span>
@@ -824,14 +1127,14 @@ print(<span class="str">"Go!"</span>)
       },
       {
         type: 'note',
-        title: 'Loop Control',
+        title: 'Loop Control (Break, Continue, Pass)',
         content: `
-          <h2>Break, Continue, Pass</h2>
+          <h2>Controlling the Loop</h2>
           <p class="note-text">Python provides three statements to control the flow of loops:</p>
           <ul class="note-text">
-            <li><strong>break</strong>: Exits the loop entirely.</li>
-            <li><strong>continue</strong>: Skips the current iteration and moves to the next.</li>
-            <li><strong>pass</strong>: Does nothing (acts as a placeholder).</li>
+            <li><strong>break</strong>: Exits the loop entirely. Stops it dead in its tracks.</li>
+            <li><strong>continue</strong>: Skips the current iteration and moves to the next one.</li>
+            <li><strong>pass</strong>: Does nothing. It acts as a placeholder when syntax requires a statement but you don't want to do anything yet.</li>
           </ul>
           <div class="code-snippet">
 <span class="comment"># break example</span>
@@ -839,12 +1142,6 @@ print(<span class="str">"Go!"</span>)
     <span class="kw">if</span> num == <span class="num">4</span>:
         <span class="kw">break</span>
     print(num)  <span class="comment"># Output: 1, 2, 3</span>
-
-<span class="comment"># continue example</span>
-<span class="kw">for</span> i <span class="kw">in</span> range(<span class="num">1</span>, <span class="num">6</span>):
-    <span class="kw">if</span> i == <span class="num">3</span>:
-        <span class="kw">continue</span>
-    print(i)  <span class="comment"># Output: 1, 2, 4, 5</span>
           </div>
         `
       },
@@ -868,12 +1165,26 @@ print(<span class="str">"Go!"</span>)
         correct: 2,
         explanation: 'The loop prints 1, 2, 3. When num == 4, break stops the loop.'
       },
+
+      // --- CHAPTER 5: FUNCTIONS ---
       {
         type: 'note',
-        title: 'Functions',
+        title: 'What is a Function?',
         content: `
           <h2>Reusable Code</h2>
-          <p class="note-text">A <strong>function</strong> is a block of code that performs a specific task. You define it with <code>def</code> and call it to execute. Functions help avoid repetitive code and make programs easier to maintain.</p>
+          <p class="note-text">A <strong>function</strong> is a block of code that performs a specific task. You define it once, and you can call it as many times as you want.</p>
+          <p class="note-text">Functions help avoid repetitive code and make programs easier to read and maintain.</p>
+          <div class="callout info">
+            <strong>Analogy:</strong> Think of a function like a coffee machine. You put in coffee beans and water (inputs), press a button (call the function), and it gives you coffee (output). You don't need to know the internal mechanics of the machine, you just use it.
+          </div>
+        `
+      },
+      {
+        type: 'note',
+        title: 'Defining a Function',
+        content: `
+          <h2>How to write it</h2>
+          <p class="note-text">You define a function using the <code>def</code> keyword, followed by the function name and parentheses.</p>
           <div class="code-snippet">
 <span class="kw">def</span> <span class="fn">greet</span>():
     print(<span class="str">"Hello, Python!"</span>)
@@ -894,7 +1205,11 @@ greet()  <span class="comment"># Calls the function</span>
         title: 'Parameters & Arguments',
         content: `
           <h2>Passing Data to Functions</h2>
-          <p class="note-text"><strong>Parameters</strong> are placeholders in the function definition. <strong>Arguments</strong> are the actual values passed when calling the function.</p>
+          <p class="note-text">Functions become powerful when you pass them data.</p>
+          <ul class="note-text">
+            <li><strong>Parameters:</strong> Placeholders in the function definition (e.g., <code>a</code> and <code>b</code>).</li>
+            <li><strong>Arguments:</strong> The actual values passed when calling the function (e.g., <code>3</code> and <code>5</code>).</li>
+          </ul>
           <div class="code-snippet">
 <span class="comment"># a and b are parameters</span>
 <span class="kw">def</span> <span class="fn">my_sum</span>(a, b):
@@ -921,10 +1236,10 @@ print(result)  <span class="comment"># 8</span>
       },
       {
         type: 'note',
-        title: 'The return Statement',
+        title: 'The Return Statement',
         content: `
           <h2>Getting Data Back</h2>
-          <p class="note-text">The <code>return</code> statement sends a value back to the caller and exits the function. If a function has no <code>return</code>, it returns <code>None</code>.</p>
+          <p class="note-text">The <code>return</code> statement sends a value back to the caller and exits the function. If a function has no <code>return</code>, it returns <code>None</code> by default.</p>
           <div class="code-snippet">
 <span class="kw">def</span> <span class="fn">square</span>(x):
     <span class="kw">return</span> x * x
@@ -954,6 +1269,8 @@ print(result)  <span class="comment"># 16</span>
         correctAnswers: ['none'],
         explanation: 'The default return value is None.'
       },
+
+      // --- CHAPTER 6: PRACTICAL TASKS ---
       {
         type: 'note',
         title: 'Practical Task 1: The Positive Check',
@@ -1187,6 +1504,7 @@ print(result)  <span class="comment"># 16</span>
     const prevBtn = document.getElementById('prevBtn');
     const feedbackBox = document.getElementById('feedbackBox');
     const resultsScreen = document.getElementById('resultsScreen');
+    const notesOverlay = document.getElementById('notesOverlay');
 
     totalQuestions = courseSteps.filter(s => s.type === 'mcq' || s.type === 'fill' || s.type === 'task').length;
 
@@ -1710,6 +2028,20 @@ print(result)  <span class="comment"># 16</span>
       }
     });
 
+    // --- NOTES MODAL LOGIC ---
+    const notesBtn = document.getElementById('notesBtn');
+    const notesBtnStart = document.getElementById('notesBtnStart');
+    const notesClose = document.getElementById('notesClose');
+
+    function openNotes() {
+      notesOverlay.classList.add('active');
+    }
+
+    notesBtn.addEventListener('click', openNotes);
+    notesBtnStart.addEventListener('click', openNotes);
+    notesClose.addEventListener('click', () => notesOverlay.classList.remove('active'));
+
+    // --- ASK MIKEY LOGIC ---
     const askMikeyBtn = document.getElementById('askMikeyBtn');
     const askMikeyBtnStart = document.getElementById('askMikeyBtnStart');
     const chatOverlay = document.getElementById('chatOverlay');
